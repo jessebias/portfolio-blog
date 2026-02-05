@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+/*
+  ========================================
+  GLOBAL VARIABLES & RESET
+  - Define theme colors and basic resets
+  ========================================
+*/
+:root {
+  --bg: #050505;
+  --text: #EAEAEA;
+  --muted: #9B9B9B;
+  --prefix: #666666;
+  --border: rgba(255, 255, 255, .08);
+  --chrome1: #f2f2f2;
+  --chrome2: #cfcfcf;
+  --chrome3: #8f8f8f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Roboto Mono", monospace;
+}
+
+/*
+  LIQUID CHROME LOGO ANIMATION
+*/
+@keyframes liquid {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes blink {
+
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
