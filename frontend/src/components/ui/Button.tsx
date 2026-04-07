@@ -6,6 +6,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement | HTM
     children: React.ReactNode;
     width?: string;
     to?: string;
+    target?: string;
+    rel?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({ children, className = '', width = '', to, ...props }) => {
