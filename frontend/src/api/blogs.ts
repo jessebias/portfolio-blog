@@ -4,9 +4,15 @@ import axios from 'axios';
 export interface Blog {
     id: number;
     title: string;
+    category: string;
+    image_url?: string;
     content: string;
     created_at?: string;
     updated_at?: string;
+    user?: {
+        name: string;
+        email: string;
+    };
 }
 
 // Fetch all blogs
