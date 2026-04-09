@@ -66,15 +66,15 @@ const Navbar = () => {
                 </Link>
                 <div className="flex gap-[22px]">
                     {[
-                        { id: 'about', label: 'ABOUT' },
-                        { id: 'works', label: 'WORK' },
+                        { id: '#about', label: 'ABOUT' },
+                        { id: '#works', label: 'WORK' },
                         { id: 'blog', label: 'BLOG' },
-                        { id: 'contact', label: 'CONTACT' }
+                        { id: '#contact', label: 'CONTACT' }
                     ].map(({ id, label }) => (
                         <Link
                             key={id}
                             className="relative inline-flex gap-[6px] text-[0.8rem] tracking-[0.08em] text-[#EAEAEA] no-underline cursor-pointer py-[10px] px-[6px] transition-transform duration-150 ease-out hover:-translate-y-px"
-                            to={id === 'blog' ? '/blogs' : `/#${id}`}
+                            to={id === 'blog' ? '/blogs' : `/${id}`}
                             onMouseEnter={scramble}
                             onMouseMove={handleMouseMove}
                             onMouseLeave={handleMouseLeave}

@@ -6,6 +6,7 @@ import Home from './pages/Home'
 import AdminDashboard from './pages/AdminDashboard'
 import Blogs from './pages/Blogs'
 import BlogPost from './pages/BlogPost'
+import NotFound from './pages/NotFound'
 
 const router = createBrowserRouter([
   {
@@ -13,16 +14,32 @@ const router = createBrowserRouter([
     element: <Home />,
   },
   {
-    path: "/admin",
-    element: <AdminDashboard />,
+    path: "/works",
+    element: <Home />,
+  },
+  {
+    path: "/about",
+    element: <Home />,
+  },
+  {
+    path: "/contact",
+    element: <Home />,
   },
   {
     path: "/blogs",
     element: <Blogs />,
   },
   {
-    path: "/blog/*",
+    path: "/blogs/:id",
     element: <BlogPost />,
+  },
+  {
+    path: "/admin-dash",
+    element: <AdminDashboard />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);
 

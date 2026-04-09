@@ -12,13 +12,20 @@ import BootScreen from '../components/BootScreen';
 import ScrollToHash from '../components/ScrollToHash';
 
 function Home() {
-    const [isBooted, setIsBooted] = useState(false);
+    const [isBooted, setIsBooted] = useState(() => {
+        return sessionStorage.getItem('hasBooted') === 'true';
+    });
+
+    const handleBootComplete = () => {
+        setIsBooted(true);
+        sessionStorage.setItem('hasBooted', 'true');
+    };
 
     return (
         <ReactLenis root>
-            <ScrollToHash />
+            <ScrollToHash isBooted={isBooted} />
             <div className="font-mono bg-bg text-text min-h-screen">
-                {!isBooted && <BootScreen onComplete={() => setIsBooted(true)} />}
+                {!isBooted && <BootScreen onComplete={handleBootComplete} />}
 
                 <Navbar />
                 <main>
