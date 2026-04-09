@@ -1,5 +1,6 @@
+import { useEffect } from 'react';
 import { ReactLenis } from 'lenis/react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 
@@ -9,8 +10,18 @@ import Footer from './Footer';
  * - Smooth scrolling (Lenis)
  * - Global CSS classes (Font, Colors, Selection)
  * - Shared Navigation (Navbar and Footer)
+ * - Scroll-to-Top restoration on route changes
  */
 const Layout = () => {
+    const { pathname, hash } = useLocation();
+
+    // Scroll to top on route change only if there's no hash
+    useEffect(() => {
+        if (!hash) {
+            window.scrollTo(0, 0);
+        }
+    }, [pathname, hash]);
+
     return (
         <ReactLenis root>
             <div 

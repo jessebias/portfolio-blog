@@ -15,7 +15,10 @@ const Hero = () => {
                     <source src={backgroundVideo} type="video/mp4" />
                 </video>
                 {/* Subtle Gradient Overlay for Text Readability */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-[#050505]" />
+                <div 
+                    className="absolute inset-0" 
+                    style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.2), transparent, var(--bg))' }}
+                />
             </div>
 
             {/* Content Layer (Restored to Original Styling) */}
@@ -29,7 +32,10 @@ const Hero = () => {
             {/* Scroll Indicator Hint */}
             <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 opacity-20 hover:opacity-100 transition-opacity duration-500 cursor-default">
                 <span className="text-[0.6rem] tracking-[0.3em] uppercase">Scroll</span>
-                <div className="w-px h-8 bg-gradient-to-b from-white to-transparent" />
+                <div 
+                    className="w-px h-8" 
+                    style={{ background: 'linear-gradient(to bottom, white, transparent)' }}
+                />
             </div>
         </section>
     );
