@@ -62,7 +62,7 @@ const Login = () => {
                 {/* Outer Glow Overlay */}
                 <div className="absolute -inset-0.5 bg-linear-to-r from-white/10 to-white/5 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
                 
-                <div className="login-card">
+                <div className="login-card group-hover:-translate-y-2 group-hover:border-white/20">
                     <div className="text-center mb-10">
                         <h1 className="login-title">{title}</h1>
                         <div className="h-px w-10 bg-white/10 mx-auto mb-6" />
@@ -102,7 +102,7 @@ const Login = () => {
 
                         <button type="submit" disabled={loading} className="relative w-full overflow-hidden group/btn">
                             <div className="absolute inset-0 bg-white translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
-                            <div className="login-button">
+                            <div className="login-button group-hover/btn:text-black">
                                 {loading ? "INITIALIZING..." : "ACCESS SYSTEM"}
                             </div>
                         </button>
