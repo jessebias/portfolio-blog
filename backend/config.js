@@ -9,3 +9,6 @@ export const DB_USER = process.env.DB_USER || "postgres";
 export const DB_PASSWORD = process.env.DB_PASSWORD || "postgres";
 export const DB_NAME = process.env.DB_NAME || "portfolio_blog_admin";
 
+export const JWT_SECRET = process.env.JWT_SECRET || "your_super_secret_key_change_this";
+export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "24h";
+

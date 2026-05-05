@@ -10,7 +10,8 @@ import {
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-    res.status(201).json(await createUser(req.body));
+    const { name, email, password, role } = req.body;
+    res.status(201).json(await createUser(name, email, password, role));
 });
 
 router.get("/", async (req, res) => {

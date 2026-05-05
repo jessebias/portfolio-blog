@@ -4,6 +4,7 @@ import morgan from "morgan";
 import { connectDB } from "./db/dbconn.js";
 import userRouter from "./routes/userRouter.js";
 import blogsRouter from "./routes/blogsRouter.js";
+import authRouter from "./routes/authRouter.js";
 import { PORT } from "./config.js";
 
 const app = express();
@@ -18,6 +19,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/users", userRouter);
 app.use("/api/blogs", blogsRouter);
+app.use("/api/auth", authRouter);
 
 await connectDB();
 
