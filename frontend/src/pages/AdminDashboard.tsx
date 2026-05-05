@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import Button from '../components/ui/Button';
+import { useAuth } from '../context/AuthProvider.tsx';
 
 // Icon components to avoid external dependencies
 const Icons = {
@@ -14,6 +15,7 @@ const Icons = {
 };
 
 export default function AdminDashboard() {
+    const { logout } = useAuth();
     const contentRef = useRef<HTMLDivElement>(null);
 
     const formatDoc = (cmd: string, value: string | null = null) => {
@@ -36,11 +38,17 @@ export default function AdminDashboard() {
                         <div className="text-[0.85rem] tracking-[0.14em] font-medium select-none bg-[linear-gradient(120deg,#ffffff,#e8ecf2,#c7d2df,#7a838f,#c7d2df,#e8ecf2,#ffffff)] bg-size-[200%_200%] bg-repeat bg-clip-text text-transparent animate-[liquid_4.5s_ease-in-out_infinite]">JB</div>
                         <div className="text-xs tracking-widest text-[#666] font-medium">// ADMIN</div>
                     </div>
-                    <div>
+                    <div className="flex items-center gap-6">
                         <a href="/" className="flex items-center gap-2 text-xs tracking-widest text-[#9B9B9B] hover:text-white transition-colors group">
                             <span className="text-[#666] group-hover:text-white transition-colors">&lt;</span>
                             <span>BACK TO SITE</span>
                         </a>
+                        <button 
+                            onClick={logout}
+                            className="text-xs tracking-widest text-[#ff4d4d] hover:text-[#ff3333] transition-colors font-medium border border-[#ff4d4d]/30 hover:border-[#ff4d4d] px-3 py-1.5 rounded-md"
+                        >
+                            SIGN OUT
+                        </button>
                     </div>
                 </div>
             </nav>
@@ -135,7 +143,7 @@ export default function AdminDashboard() {
                             <div key={i} className="bg-white/3 border border-white/8 rounded-xl p-6 flex justify-between items-center hover:bg-white/5 transition-colors group">
                                 <div>
                                     <h3 className="text-[0.95rem] font-normal tracking-[0.05em] mb-1.5">{post.title}</h3>
-                                    <span className="text-[0.7rem] text-[#9B9B9B] tracking-[0.1em] uppercase">Published: {post.date}</span>
+                                    <span className="text-[0.7rem] text-[#9B9B9B] tracking-widest uppercase">Published: {post.date}</span>
                                 </div>
                                 <div className="flex gap-3">
                                     <button className="bg-transparent text-[#9B9B9B] border border-white/8 rounded-md px-4 py-2 text-[0.7rem] hover:border-[#EAEAEA] hover:text-[#EAEAEA] transition-colors tracking-widest">EDIT</button>
@@ -156,14 +164,14 @@ export default function AdminDashboard() {
                         <div className="bg-white/3 border border-white/8 rounded-xl p-6 flex justify-between items-center hover:bg-white/5 transition-colors">
                             <div>
                                 <h3 className="text-[0.95rem] font-normal tracking-[0.05em] mb-1.5">admin_jesse</h3>
-                                <span className="text-[0.7rem] text-[#9B9B9B] tracking-[0.1em] uppercase">SUPER ADMIN</span>
+                                <span className="text-[0.7rem] text-[#9B9B9B] tracking-widest uppercase">SUPER ADMIN</span>
                             </div>
                         </div>
 
                         <div className="bg-white/3 border border-white/8 rounded-xl p-6 flex justify-between items-center hover:bg-white/5 transition-colors">
                             <div>
                                 <h3 className="text-[0.95rem] font-normal tracking-[0.05em] mb-1.5">guest_user_01</h3>
-                                <span className="text-[0.7rem] text-[#9B9B9B] tracking-[0.1em] uppercase">VISITOR</span>
+                                <span className="text-[0.7rem] text-[#9B9B9B] tracking-widest uppercase">VISITOR</span>
                             </div>
                             <div className="flex gap-3">
                                 <button className="bg-transparent text-[#ff4d4d] border border-[#ff4d4d]/30 rounded-md px-4 py-2 text-[0.7rem] hover:border-[#ff4d4d] hover:bg-[#ff4d4d]/10 transition-colors tracking-widest">REVOKE ACCESS</button>

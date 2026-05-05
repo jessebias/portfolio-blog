@@ -107,7 +107,7 @@ const Navbar = () => {
                         <Link
                             key={id}
                             className="relative inline-flex gap-[6px] text-[0.8rem] tracking-[0.08em] text-[#EAEAEA] no-underline cursor-pointer py-[10px] px-[6px] transition-transform duration-150 ease-out hover:-translate-y-px"
-                            to={id === 'blog' ? '/blogs' : `/${id}`}
+                            to={id === 'blog' ? '/blogs' : (id.startsWith('#') ? `/${id}` : `/${id}`)}
                             onMouseEnter={scramble}
                             onMouseMove={handleMouseMove}
                             onMouseLeave={handleMouseLeave}

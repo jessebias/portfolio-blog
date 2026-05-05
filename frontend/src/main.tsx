@@ -7,7 +7,13 @@ import AdminDashboard from './pages/AdminDashboard'
 import Blogs from './pages/Blogs'
 import BlogPost from './pages/BlogPost'
 import NotFound from './pages/NotFound'
-import Layout from './components/Layout'
+import Login from './pages/Login.tsx'
+import SignUp from './pages/SignUp.tsx'
+import Profile from './pages/Profile.tsx'
+import Layout from './components/Layout.tsx'
+import { AuthProvider } from './context/AuthProvider.tsx'
+import ProtectedRoute from './components/ProtectedRoute.tsx'
+import PrivateRoute from './components/PrivateRoute.tsx'
 
 const router = createBrowserRouter([
   {
@@ -38,19 +44,39 @@ const router = createBrowserRouter([
         element: <BlogPost />,
       },
       {
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        element: <ProtectedRoute />,
+        children: [
+          {
+            path: "/profile",
+            element: <Profile />,
+          }
+        ]
+      },
+      {
+        element: <PrivateRoute />,
+        children: [
+          {
+            path: "/admin",
+            element: <AdminDashboard />,
+          }
+        ]
+      },
+      {
         path: "*",
         element: <NotFound />,
       },
     ]
-  },
-  {
-    path: "/admin",
-    element: <AdminDashboard />,
-  },
+  }
 ]);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </StrictMode>,
 )
