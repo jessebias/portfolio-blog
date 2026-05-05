@@ -24,8 +24,8 @@ const Login = () => {
         if (intervalRef.current) clearInterval(intervalRef.current);
         
         intervalRef.current = setInterval(() => {
-            setTitle(prev => 
-                originalText.split("").map((char, index) => {
+            setTitle(
+                originalText.split("").map((_, index) => {
                     if (index < iteration) return originalText[index];
                     return GLITCH[Math.floor(Math.random() * 26)];
                 }).join("")
@@ -61,7 +61,7 @@ const Login = () => {
     };
 
     return (
-        <div className="relative flex items-center justify-center min-h-[100vh] overflow-hidden pt-20">
+        <div className="relative flex items-center justify-center min-h-screen overflow-hidden pt-20">
             {/* Ambient Background Blobs */}
             <div className="absolute top-1/4 -left-20 w-96 h-96 bg-white/5 rounded-full blur-[120px] animate-pulse" />
             <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-white/5 rounded-full blur-[120px] animate-pulse delay-700" />
@@ -71,7 +71,7 @@ const Login = () => {
                 onMouseEnter={scramble}
             >
                 {/* Outer Glow Overlay */}
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-white/10 to-white/5 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+                <div className="absolute -inset-0.5 bg-linear-to-r from-white/10 to-white/5 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
                 
                 <div className="relative bg-[#050505]/60 border border-white/10 rounded-2xl p-10 backdrop-blur-xl shadow-2xl transition-all duration-500 group-hover:-translate-y-2 group-hover:border-white/20">
                     <div className="text-center mb-10">
