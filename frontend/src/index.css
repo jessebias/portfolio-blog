@@ -59,3 +59,60 @@ body {
     opacity: 0;
   }
 }
+
+/* 
+  SEMANTIC UI CLASSES 
+  - Using @apply for cleaner component code
+*/
+
+@layer components {
+  /* Login Page Styles */
+  .login-page {
+    @apply relative flex items-center justify-center min-h-screen overflow-hidden pt-20;
+  }
+
+  .ambient-blob {
+    @apply absolute w-96 h-96 bg-white/5 rounded-full blur-[120px] animate-pulse;
+  }
+
+  .login-card {
+    @apply relative bg-[#050505]/60 border border-white/10 rounded-2xl p-10 backdrop-blur-xl shadow-2xl transition-all duration-500 group-hover:-translate-y-2 group-hover:border-white/20;
+  }
+
+  .login-title {
+    @apply text-xl font-medium tracking-[0.4em] mb-3 text-[#EAEAEA] font-mono;
+  }
+
+  .login-subtitle {
+    @apply text-[#666] text-[0.6rem] tracking-[0.3em] uppercase;
+  }
+
+  .login-input-group {
+    @apply space-y-3;
+  }
+
+  .login-label {
+    @apply block text-[0.65rem] tracking-[0.2em] text-[#666] uppercase ml-1;
+  }
+
+  .login-input {
+    @apply w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-sm text-[#EAEAEA] outline-none focus:border-white/30 focus:bg-white/10 transition-all placeholder:text-white/10;
+  }
+
+  .login-button {
+    @apply relative border border-white/20 py-4 text-[0.75rem] font-bold tracking-[0.3em] text-white group-hover/btn:text-black transition-colors duration-300;
+  }
+
+  /* Navbar Styles */
+  .nav-container {
+    @apply fixed top-0 w-full z-10 backdrop-blur-[3px] bg-[rgba(5,5,5,0.9)] border-b border-[rgba(255,255,255,0.08)];
+  }
+
+  .nav-content {
+    @apply max-w-[1200px] mx-auto py-[18px] px-[24px] flex justify-between items-center;
+  }
+
+  .nav-link {
+    @apply relative inline-flex gap-[6px] text-[0.8rem] tracking-[0.08em] text-[#EAEAEA] no-underline cursor-pointer py-[10px] px-[6px] transition-transform duration-150 ease-out hover:-translate-y-px;
+  }
+}
