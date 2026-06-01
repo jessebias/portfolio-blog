@@ -4,10 +4,10 @@ const Blog = {
     /**
      * Create a new blog post
      */
-    async create({ title, content, user_id }) {
+    async create({ title, content, category, image_url, user_id }) {
         const { rows } = await pool.query(
-            "INSERT INTO blogs (title, content, user_id) VALUES ($1, $2, $3) RETURNING *",
-            [title, content, user_id]
+            "INSERT INTO blogs (title, content, category, image_url, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+            [title, content, category || null, image_url || null, user_id]
         );
         return rows[0];
     },
@@ -43,7 +43,7 @@ const Blog = {
     /**
      * Update an existing blog post
      */
-    async update(id, { title, content }) {
+    async update(id, { title, content, category, image_url }) {
         const fields = [];
         const values = [];
         let idx = 1;
@@ -55,6 +55,14 @@ const Blog = {
         if (content) {
             fields.push(`content = $${idx++}`);
             values.push(content);
+        }
+        if (category !== undefined) {
+            fields.push(`category = $${idx++}`);
+            values.push(category);
+        }
+        if (image_url !== undefined) {
+            fields.push(`image_url = $${idx++}`);
+            values.push(image_url);
         }
 
         if (fields.length === 0) return this.findById(id);

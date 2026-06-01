@@ -22,10 +22,10 @@ export const getBlog = async (req, res) => {
 
 export const createBlog = async (req, res) => {
     try {
-        const { title, content } = req.body;
+        const { title, content, category, image_url } = req.body;
         const user_id = req.user.id;
-        
-        const newBlog = await Blog.create({ title, content, user_id });
+
+        const newBlog = await Blog.create({ title, content, category, image_url, user_id });
         res.status(201).json(BlogDTO(newBlog));
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -34,7 +34,8 @@ export const createBlog = async (req, res) => {
 
 export const updateBlog = async (req, res) => {
     try {
-        const updatedBlog = await Blog.update(req.params.id, req.body);
+        const { title, content, category, image_url } = req.body;
+        const updatedBlog = await Blog.update(req.params.id, { title, content, category, image_url });
         res.json(BlogDTO(updatedBlog));
     } catch (err) {
         res.status(500).json({ message: err.message });

@@ -14,11 +14,3 @@ export const UserDTO = (user) => {
     };
 };
 
-/**
- * UserListDTO
- * Formats a list of users.
- */
-export const UserListDTO = (users) => {
-    if (!Array.isArray(users)) return [];
-    return users.map(user => UserDTO(user));
-};
