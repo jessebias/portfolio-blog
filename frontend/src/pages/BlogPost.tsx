@@ -73,9 +73,9 @@ const BlogPost = () => {
                 {/* Article Header */}
                 <header className="mb-14 border-b border-white/8 pb-8">
                     <div className="flex flex-wrap gap-4 text-[0.65rem] tracking-[0.15em] text-[#666] uppercase mb-6 font-medium">
-                        <span className="text-white/40">{formatDate(blog.created_at)}</span>
+                        <span className="text-white/40">{formatDate(blog.createdAt)}</span>
                         <span className="text-[#333]">//</span>
-                        <span className="text-white/40">BY {blog.user?.name || "JESSE BIAS"}</span>
+                        <span className="text-white/40">BY {blog.author?.name || "JESSE BIAS"}</span>
                         <span className="text-[#333]">//</span>
                         <span className="text-white">{blog.category}</span>
                     </div>

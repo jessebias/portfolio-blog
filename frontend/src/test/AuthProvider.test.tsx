@@ -6,13 +6,13 @@ import { MemoryRouter } from 'react-router-dom';
 import { AuthProvider, useAuth } from '../context/AuthProvider';
 
 const VALID_ADMIN_TOKEN =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6IkFkbWluIiwiZW1haWwiOiJhZG1pbkB0ZXN0LmNvbSIsInJvbGUiOiJhZG1pbiIsImV4cCI6MTc4MDI5MTU5NX0.fakesig';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6IkFkbWluIiwiZW1haWwiOiJhZG1pbkB0ZXN0LmNvbSIsInJvbGUiOiJhZG1pbiIsImV4cCI6NDAzMzk5MDQwMH0.fakesig';
 
 const EXPIRED_TOKEN =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6IkFkbWluIiwiZW1haWwiOiJhZG1pbkB0ZXN0LmNvbSIsInJvbGUiOiJhZG1pbiIsImV4cCI6MTc4MDI4NDM5NX0.fakesig';
 
 const VALID_USER_TOKEN =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6IlVzZXIiLCJlbWFpbCI6InVzZXJAdGVzdC5jb20iLCJyb2xlIjoidXNlciIsImV4cCI6MTc4MDI5MTU5NX0.fakesig';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6IlVzZXIiLCJlbWFpbCI6InVzZXJAdGVzdC5jb20iLCJyb2xlIjoidXNlciIsImV4cCI6NDAzMzk5MDQwMH0.fakesig';
 
 const TestConsumer = () => {
   const { isLoggedIn, isAdmin, user, token, login, logout } = useAuth();
@@ -29,7 +29,7 @@ const TestConsumer = () => {
             name: 'Admin',
             email: 'admin@test.com',
             role: 'admin',
-            exp: 1780291595,
+            exp: 4033990400,
           })
         }
       >

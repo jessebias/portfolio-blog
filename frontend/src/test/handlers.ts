@@ -46,6 +46,36 @@ export const handlers = [
     return HttpResponse.json(blog);
   }),
 
+  http.post('/api/blogs', async ({ request }) => {
+    const body = await request.json() as Record<string, unknown>;
+    return HttpResponse.json({
+      id: 3,
+      title: body.title,
+      content: body.content,
+      category: body.category ?? null,
+      image_url: null,
+      author: mockBlogs[0].author,
+      createdAt: '2025-03-01T00:00:00.000Z',
+      updatedAt: '2025-03-01T00:00:00.000Z',
+    });
+  }),
+
+  http.put('/api/blogs/:id', async ({ params, request }) => {
+    const body = await request.json() as Record<string, unknown>;
+    const base = mockBlogs.find(b => b.id === Number(params.id)) ?? mockBlogs[0];
+    return HttpResponse.json({ ...base, ...body, id: Number(params.id), updatedAt: '2025-03-01T00:00:00.000Z' });
+  }),
+
+  http.delete('/api/blogs/:id', () => {
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.get('/api/meta/users', () => {
+    return HttpResponse.json([
+      { id: 1, name: 'Admin User', email: 'admin@test.com', role: 'admin', created_at: '2025-01-01T00:00:00.000Z' },
+    ]);
+  }),
+
   http.post('/api/auth/login', () => {
     // Valid JWT with exp far in the future (year 2096) so AuthProvider doesn't reject it
     return HttpResponse.json({
