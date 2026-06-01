@@ -4,13 +4,11 @@ import { authenticateToken } from "../middleware/auth-middleware.js";
 import { readFileSync, existsSync } from "fs";
 import { exec } from "child_process";
 import { promisify } from "util";
-import { fileURLToPath } from "url";
-import { dirname, resolve, join } from "path";
+import { resolve, join } from "path";
 
 const execAsync = promisify(exec);
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const BACKEND_ROOT = resolve(__dirname, "..");
-const FRONTEND_ROOT = resolve(__dirname, "../../frontend");
+const BACKEND_ROOT = resolve(process.cwd());
+const FRONTEND_ROOT = resolve(process.cwd(), "../frontend");
 
 const router = express.Router();
 
