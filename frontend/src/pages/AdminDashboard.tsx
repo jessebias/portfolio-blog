@@ -1,8 +1,9 @@
-import { useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
+import { getBlogs, createBlog, updateBlog, deleteBlog, type Blog } from '../api/blogs';
 import Button from '../components/ui/Button';
 import { useAuth } from '../context/AuthProvider.tsx';
 
-// Icon components to avoid external dependencies
 const Icons = {
     Bold: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 12h8a4 4 0 0 0 0-8H6v8Z" /><path d="M6 12h9a4 4 0 0 1 0 8H6v-8Z" /></svg>,
     Italic: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="4" x2="10" y2="4" /><line x1="14" y1="20" x2="5" y2="20" /><line x1="15" y1="4" x2="9" y2="20" /></svg>,
@@ -14,22 +15,107 @@ const Icons = {
     Image: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
 };
 
+const EMPTY_CONTENT = '<p>Start writing your story...</p>';
+
 export default function AdminDashboard() {
     const { logout } = useAuth();
     const contentRef = useRef<HTMLDivElement>(null);
 
+    // Form state
+    const [title, setTitle]       = useState('');
+    const [category, setCategory] = useState('');
+    const [editingPost, setEditingPost] = useState<Blog | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError]   = useState<string | null>(null);
+    const [submitSuccess, setSubmitSuccess] = useState(false);
+
+    // Data state
+    const [posts, setPosts]       = useState<Blog[]>([]);
+    const [users, setUsers]       = useState<any[]>([]);
+    const [postsError, setPostsError] = useState<string | null>(null);
+    const [usersError, setUsersError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (contentRef.current) contentRef.current.innerHTML = EMPTY_CONTENT;
+
+        getBlogs()
+            .then(setPosts)
+            .catch(() => setPostsError('Failed to load posts'));
+
+        axios.get('/api/meta/users')
+            .then(res => setUsers(res.data))
+            .catch(() => setUsersError('Failed to load users'));
+    }, []);
+
     const formatDoc = (cmd: string, value: string | null = null) => {
         document.execCommand(cmd, false, value ?? undefined);
-        if (contentRef.current) {
-            contentRef.current.focus();
+        contentRef.current?.focus();
+    };
+
+    const resetForm = () => {
+        setTitle('');
+        setCategory('');
+        setEditingPost(null);
+        setSubmitError(null);
+        setSubmitSuccess(false);
+        if (contentRef.current) contentRef.current.innerHTML = EMPTY_CONTENT;
+    };
+
+    const handleEdit = (post: Blog) => {
+        setEditingPost(post);
+        setTitle(post.title);
+        setCategory(post.category || '');
+        setSubmitError(null);
+        setSubmitSuccess(false);
+        if (contentRef.current) contentRef.current.innerHTML = post.content;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDelete = async (id: number) => {
+        if (!window.confirm('Delete this post? This cannot be undone.')) return;
+        try {
+            await deleteBlog(id);
+            setPosts(prev => prev.filter(p => p.id !== id));
+            if (editingPost?.id === id) resetForm();
+        } catch {
+            setPostsError('Failed to delete post');
         }
+    };
+
+    const handleSubmit = async () => {
+        const content = contentRef.current?.innerHTML || '';
+        if (!title.trim()) { setSubmitError('Title is required'); return; }
+        if (!content.trim() || content === EMPTY_CONTENT) { setSubmitError('Content is required'); return; }
+
+        setIsSubmitting(true);
+        setSubmitError(null);
+        setSubmitSuccess(false);
+
+        try {
+            if (editingPost) {
+                const updated = await updateBlog(editingPost.id, { title, category, content });
+                setPosts(prev => prev.map(p => p.id === updated.id ? updated : p));
+            } else {
+                const created = await createBlog({ title, category, content });
+                setPosts(prev => [created, ...prev]);
+            }
+            setSubmitSuccess(true);
+            resetForm();
+        } catch (err: any) {
+            setSubmitError(err.response?.data?.message || 'Failed to save post');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const formatDate = (dateStr?: string) => {
+        if (!dateStr) return '—';
+        return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase();
     };
 
     return (
         <div className="min-h-screen bg-[#050505] text-[#EAEAEA] selection:bg-[#666] selection:text-white"
-            style={{
-                backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.03), transparent 70%)'
-            }}>
+            style={{ backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.03), transparent 70%)' }}>
 
             {/* Navigation */}
             <nav className="border-b border-white/8 bg-black/50 backdrop-blur-md sticky top-0 z-50">
@@ -43,10 +129,7 @@ export default function AdminDashboard() {
                             <span className="text-[#666] group-hover:text-white transition-colors">&lt;</span>
                             <span>BACK TO SITE</span>
                         </a>
-                        <button 
-                            onClick={logout}
-                            className="text-xs tracking-widest text-[#ff4d4d] hover:text-[#ff3333] transition-colors font-medium border border-[#ff4d4d]/30 hover:border-[#ff4d4d] px-3 py-1.5 rounded-md"
-                        >
+                        <button onClick={logout} className="text-xs tracking-widest text-[#ff4d4d] hover:text-[#ff3333] transition-colors font-medium border border-[#ff4d4d]/30 hover:border-[#ff4d4d] px-3 py-1.5 rounded-md">
                             SIGN OUT
                         </button>
                     </div>
@@ -55,11 +138,13 @@ export default function AdminDashboard() {
 
             <div className="max-w-4xl mx-auto px-6 py-20 flex flex-col gap-16">
 
-                {/* Create Post Section */}
+                {/* Create / Edit Post */}
                 <section>
                     <div className="bg-[#0a0a0a]/60 backdrop-blur-xl border border-white/8 rounded-2xl p-10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
                         <div className="flex justify-center items-center mb-10">
-                            <h2 className="text-[1.4rem] tracking-widest font-medium text-[#EAEAEA]">CREATE NEW POST</h2>
+                            <h2 className="text-[1.4rem] tracking-widest font-medium text-[#EAEAEA]">
+                                {editingPost ? 'EDIT POST' : 'CREATE NEW POST'}
+                            </h2>
                         </div>
 
                         <div className="flex flex-col gap-6">
@@ -67,25 +152,31 @@ export default function AdminDashboard() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="block mb-2.5 text-xs text-[#9B9B9B] tracking-[0.12em] uppercase">Post Title</label>
-                                    <input type="text" className="w-full bg-white/3 border border-white/8 text-[#EAEAEA] px-4 py-3.5 rounded-lg outline-none focus:border-[#666] focus:bg-white/5 transition-all text-sm placeholder:text-[#666]" placeholder="Enter title..." />
+                                    <input
+                                        type="text"
+                                        value={title}
+                                        onChange={e => setTitle(e.target.value)}
+                                        className="w-full bg-white/3 border border-white/8 text-[#EAEAEA] px-4 py-3.5 rounded-lg outline-none focus:border-[#666] focus:bg-white/5 transition-all text-sm placeholder:text-[#666]"
+                                        placeholder="Enter title..."
+                                    />
                                 </div>
                                 <div>
                                     <label className="block mb-2.5 text-xs text-[#9B9B9B] tracking-[0.12em] uppercase">Category</label>
-                                    <input type="text" className="w-full bg-white/3 border border-white/8 text-[#EAEAEA] px-4 py-3.5 rounded-lg outline-none focus:border-[#666] focus:bg-white/5 transition-all text-sm placeholder:text-[#666]" placeholder="e.g. Technology" />
+                                    <input
+                                        type="text"
+                                        value={category}
+                                        onChange={e => setCategory(e.target.value)}
+                                        className="w-full bg-white/3 border border-white/8 text-[#EAEAEA] px-4 py-3.5 rounded-lg outline-none focus:border-[#666] focus:bg-white/5 transition-all text-sm placeholder:text-[#666]"
+                                        placeholder="e.g. Technology"
+                                    />
                                 </div>
                             </div>
 
-                            {/* Date and File */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block mb-2.5 text-xs text-[#9B9B9B] tracking-[0.12em] uppercase">Date</label>
-                                    <input type="date" className="w-full bg-white/3 border border-white/8 text-[#EAEAEA] px-4 py-3.5 rounded-lg outline-none focus:border-[#666] focus:bg-white/5 transition-all text-sm" />
-                                </div>
-                                <div>
-                                    <label className="block mb-2.5 text-xs text-[#9B9B9B] tracking-[0.12em] uppercase">Cover Media</label>
-                                    <div className="relative w-full overflow-hidden">
-                                        <input type="file" className="w-full text-[#9B9B9B] text-xs file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:bg-white/5 file:text-[#EAEAEA] file:border-white/8 file:border-solid hover:file:bg-white/10 cursor-pointer" accept="image/*,video/*" />
-                                    </div>
+                            {/* Cover Media */}
+                            <div>
+                                <label className="block mb-2.5 text-xs text-[#9B9B9B] tracking-[0.12em] uppercase">Cover Media</label>
+                                <div className="relative w-full overflow-hidden">
+                                    <input type="file" className="w-full text-[#9B9B9B] text-xs file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:bg-white/5 file:text-[#EAEAEA] file:border-white/8 file:border-solid hover:file:bg-white/10 cursor-pointer" accept="image/*,video/*" />
                                 </div>
                             </div>
 
@@ -93,7 +184,6 @@ export default function AdminDashboard() {
                             <div>
                                 <label className="block mb-2.5 text-xs text-[#9B9B9B] tracking-[0.12em] uppercase">Content</label>
                                 <div className="bg-white/3 border border-white/8 rounded-lg overflow-hidden flex flex-col focus-within:border-[#666] transition-colors">
-                                    {/* Toolbar */}
                                     <div className="flex flex-wrap gap-2 p-2.5 bg-white/2 border-b border-white/8">
                                         <button onClick={() => formatDoc('bold')} className="p-1.5 text-[#9B9B9B] hover:text-white hover:bg-white/5 rounded transition-colors" title="Bold"><Icons.Bold /></button>
                                         <button onClick={() => formatDoc('italic')} className="p-1.5 text-[#9B9B9B] hover:text-white hover:bg-white/5 rounded transition-colors" title="Italic"><Icons.Italic /></button>
@@ -106,77 +196,79 @@ export default function AdminDashboard() {
                                         <button onClick={() => { const url = prompt('Enter Link URL:'); if (url) formatDoc('createLink', url); }} className="p-1.5 text-[#9B9B9B] hover:text-white hover:bg-white/5 rounded transition-colors" title="Link"><Icons.Link /></button>
                                         <button onClick={() => { const url = prompt('Enter Image URL:'); if (url) formatDoc('insertImage', url); }} className="p-1.5 text-[#9B9B9B] hover:text-white hover:bg-white/5 rounded transition-colors" title="Image"><Icons.Image /></button>
                                     </div>
-
-                                    {/* Content Area */}
                                     <div
                                         ref={contentRef}
                                         className="min-h-[200px] p-5 text-[#EAEAEA] outline-none overflow-y-auto leading-relaxed [&>p]:mb-4"
                                         contentEditable
                                         suppressContentEditableWarning
-                                    >
-                                        <p>Start writing your story...</p>
-                                    </div>
+                                    />
                                 </div>
                             </div>
 
-                            <div className="pt-4">
-                                <Button className="w-full">
-                                    PUBLISH POST
+                            {submitError && <p className="text-[#ff4d4d] text-xs tracking-wide">{submitError}</p>}
+                            {submitSuccess && <p className="text-green-400 text-xs tracking-wide">{editingPost ? 'POST UPDATED' : 'POST PUBLISHED'}</p>}
+
+                            <div className="pt-4 flex gap-3">
+                                <Button onClick={handleSubmit} disabled={isSubmitting} className="flex-1">
+                                    {isSubmitting ? 'SAVING...' : editingPost ? 'UPDATE POST' : 'PUBLISH POST'}
                                 </Button>
+                                {editingPost && (
+                                    <button onClick={resetForm} className="px-6 py-3 text-xs tracking-widest text-[#9B9B9B] border border-white/8 rounded-xl hover:border-white/20 transition-colors">
+                                        CANCEL
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
                 </section>
 
-                {/* Manage Posts Section */}
+                {/* Manage Posts */}
                 <section>
                     <div className="flex items-center mb-8">
                         <h2 className="text-[1.1rem] tracking-widest font-medium text-[#EAEAEA]">MANAGE POSTS</h2>
                     </div>
 
+                    {postsError && <p className="text-[#ff4d4d] text-xs tracking-wide mb-4">{postsError}</p>}
+
                     <div className="flex flex-col gap-4">
-                        {[
-                            { title: "Design Systems in 2026", date: "Jan 10, 2026" },
-                            { title: "Building Cyber Decks", date: "Jan 05, 2026" },
-                            { title: "Neural Link Integration", date: "Dec 28, 2025" }
-                        ].map((post, i) => (
-                            <div key={i} className="bg-white/3 border border-white/8 rounded-xl p-6 flex justify-between items-center hover:bg-white/5 transition-colors group">
+                        {posts.length === 0 && !postsError && (
+                            <p className="text-[#666] text-xs tracking-widest uppercase">No posts yet.</p>
+                        )}
+                        {posts.map(post => (
+                            <div key={post.id} className="bg-white/3 border border-white/8 rounded-xl p-6 flex justify-between items-center hover:bg-white/5 transition-colors group">
                                 <div>
                                     <h3 className="text-[0.95rem] font-normal tracking-[0.05em] mb-1.5">{post.title}</h3>
-                                    <span className="text-[0.7rem] text-[#9B9B9B] tracking-widest uppercase">Published: {post.date}</span>
+                                    <span className="text-[0.7rem] text-[#9B9B9B] tracking-widest uppercase">
+                                        Published: {formatDate(post.createdAt)}
+                                        {post.category && <span className="ml-3 text-[#666]">· {post.category}</span>}
+                                    </span>
                                 </div>
                                 <div className="flex gap-3">
-                                    <button className="bg-transparent text-[#9B9B9B] border border-white/8 rounded-md px-4 py-2 text-[0.7rem] hover:border-[#EAEAEA] hover:text-[#EAEAEA] transition-colors tracking-widest">EDIT</button>
-                                    <button className="bg-transparent text-[#ff4d4d] border border-[#ff4d4d]/30 rounded-md px-4 py-2 text-[0.7rem] hover:border-[#ff4d4d] hover:bg-[#ff4d4d]/10 transition-colors tracking-widest">DELETE</button>
+                                    <button onClick={() => handleEdit(post)} className="bg-transparent text-[#9B9B9B] border border-white/8 rounded-md px-4 py-2 text-[0.7rem] hover:border-[#EAEAEA] hover:text-[#EAEAEA] transition-colors tracking-widest">EDIT</button>
+                                    <button onClick={() => handleDelete(post.id)} className="bg-transparent text-[#ff4d4d] border border-[#ff4d4d]/30 rounded-md px-4 py-2 text-[0.7rem] hover:border-[#ff4d4d] hover:bg-[#ff4d4d]/10 transition-colors tracking-widest">DELETE</button>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </section>
 
-                {/* User Management Section */}
+                {/* User Management */}
                 <section>
                     <div className="flex items-center mb-8">
                         <h2 className="text-[1.1rem] tracking-widest font-medium text-[#EAEAEA]">USER MANAGEMENT</h2>
                     </div>
 
-                    <div className="flex flex-col gap-4">
-                        <div className="bg-white/3 border border-white/8 rounded-xl p-6 flex justify-between items-center hover:bg-white/5 transition-colors">
-                            <div>
-                                <h3 className="text-[0.95rem] font-normal tracking-[0.05em] mb-1.5">admin_jesse</h3>
-                                <span className="text-[0.7rem] text-[#9B9B9B] tracking-widest uppercase">SUPER ADMIN</span>
-                            </div>
-                        </div>
+                    {usersError && <p className="text-[#ff4d4d] text-xs tracking-wide mb-4">{usersError}</p>}
 
-                        <div className="bg-white/3 border border-white/8 rounded-xl p-6 flex justify-between items-center hover:bg-white/5 transition-colors">
-                            <div>
-                                <h3 className="text-[0.95rem] font-normal tracking-[0.05em] mb-1.5">guest_user_01</h3>
-                                <span className="text-[0.7rem] text-[#9B9B9B] tracking-widest uppercase">VISITOR</span>
+                    <div className="flex flex-col gap-4">
+                        {users.map(user => (
+                            <div key={user.id} className="bg-white/3 border border-white/8 rounded-xl p-6 flex justify-between items-center hover:bg-white/5 transition-colors">
+                                <div>
+                                    <h3 className="text-[0.95rem] font-normal tracking-[0.05em] mb-1.5">{user.name}</h3>
+                                    <span className="text-[0.7rem] text-[#9B9B9B] tracking-widest uppercase">{user.role} · {user.email}</span>
+                                </div>
                             </div>
-                            <div className="flex gap-3">
-                                <button className="bg-transparent text-[#ff4d4d] border border-[#ff4d4d]/30 rounded-md px-4 py-2 text-[0.7rem] hover:border-[#ff4d4d] hover:bg-[#ff4d4d]/10 transition-colors tracking-widest">REVOKE ACCESS</button>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </section>
 
