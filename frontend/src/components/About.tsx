@@ -10,9 +10,10 @@ const About = () => {
                 <div>
                     <h2 className="tracking-[0.18em] text-[1.2rem] mb-5">ABOUT</h2>
                     <p className="text-(--muted) leading-[1.7] max-w-[560px] m-0">
-                        I'm a Full-Stack & Web3 Developer with a creative background in film, audio,
-                        and digital media. I build products end-to-end — from interface and UX to
-                        backend systems and on-chain integrations.
+                        I'm an AI-native full-stack engineer, mobile developer, and Web3 builder
+                        with a creative background in film, audio, and digital media. I build
+                        products end-to-end — from user experience and frontend applications to
+                        AI systems, backend infrastructure, mobile apps, and blockchain integrations.
                     </p>
                     <SocialLinks
                         containerClass="flex gap-5 mt-7"
