@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import awsLogo from "../assets/logos/aws.svg";
 import openaiLogo from "../assets/logos/openai.svg";
 import { useI18n } from "../i18n/LanguageProvider";
+import { chromeEdge } from "./ui/chromeEdge";
 
 const CARD_BASE =
     "relative rounded-[18px] border border-[rgba(255,255,255,0.06)] bg-[radial-gradient(120px_80px_at_30%_20%,rgba(255,255,255,0.06),transparent_70%),linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] grid place-items-center transition-[transform,border-color] duration-220 ease-out hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.14)] group";
@@ -101,7 +102,14 @@ const Tools = () => {
     const { t } = useI18n();
     return (
         <section id="tools" className="max-w-[1200px] mx-auto px-6 py-[120px]">
-            <div className="border border-(--border) rounded-3xl bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] shadow-[0_18px_60px_rgba(0,0,0,0.55)]">
+            <div className="relative overflow-hidden border border-(--border) rounded-3xl bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] shadow-[0_18px_60px_rgba(0,0,0,0.55)]">
+                {/* Metallic chrome bevel around the edge — matches the work cards */}
+                <div
+                    aria-hidden
+                    className="absolute inset-0 rounded-3xl pointer-events-none z-30"
+                    style={chromeEdge(0.45)}
+                ></div>
+
                 <div className="p-[34px] border-b border-(--border)">
                     <h2 className="m-0 mb-2 tracking-[0.2em] text-[1.2rem]">{t.tools.heading}</h2>
                     <p className="m-0 text-(--muted) text-[0.8rem]">{t.tools.subtitle}</p>

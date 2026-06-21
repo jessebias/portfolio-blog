@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import Button from './ui/Button';
+import { chromeEdge } from './ui/chromeEdge';
 import { useI18n } from '../i18n/LanguageProvider';
 
 const Contact = () => {
@@ -32,6 +33,13 @@ const Contact = () => {
             <h2 className="tracking-[0.2em] mb-[40px] text-[1.05rem] text-center">{t.contact.heading}</h2>
 
             <div className="rounded-3xl border border-(--border) bg-[#080808] p-8 md:p-12 relative overflow-hidden">
+                {/* Metallic chrome bevel around the edge — matches the work cards */}
+                <div
+                    aria-hidden
+                    className="absolute inset-0 rounded-3xl pointer-events-none z-30"
+                    style={chromeEdge(0.45)}
+                ></div>
+
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.03)_0%,transparent_70%)] pointer-events-none"></div>
 
                 <form className="flex flex-col gap-6 relative z-10" onSubmit={handleSubmit}>

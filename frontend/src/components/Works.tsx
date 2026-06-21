@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useScramble } from '../hooks/useScramble';
 import { useI18n } from '../i18n/LanguageProvider';
 import type { ProjectId } from '../i18n/translations';
+import { chromeEdge } from './ui/chromeEdge';
 
 // Fully-resolved project (language-agnostic data merged with translated copy).
 interface Project {
@@ -61,21 +62,6 @@ const getGeometry = (width: number): Geometry => {
     if (width >= 768) return { spread: 312, depth: 220, rotate: 30 };
     return { spread: 188, depth: 150, rotate: 24 };
 };
-
-// Metallic chrome bevel — a gradient ring masked to the card's 1.25px edge.
-// Not uniform: a symmetric vertical gradient keeps the top and bottom edges lit
-// (bright chrome at 0% and 100%) while the vertical side rails fade out through
-// their middle — so the horizontal edges read as brushed chrome and the sides
-// dissolve into the dark. `strength` dims the whole effect for side cards.
-const chromeEdge = (strength: number): React.CSSProperties => ({
-    padding: 1.25,
-    background:
-        'linear-gradient(180deg, var(--chrome1) 0%, var(--chrome2) 6%, rgba(160,160,160,0.35) 24%, transparent 45%, transparent 55%, rgba(150,150,150,0.3) 76%, var(--chrome2) 94%, var(--chrome1) 100%)',
-    WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
-    WebkitMaskComposite: 'xor',
-    maskComposite: 'exclude',
-    opacity: strength,
-});
 
 // ── Card face ──────────────────────────────────────────────────────────────
 const ProjectCard = ({
