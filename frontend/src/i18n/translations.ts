@@ -40,27 +40,27 @@ const en = {
     },
     projects: {
         verta: {
-            category: 'COMPANY',
+            category: 'MOBILE',
             description: 'Mobile-first streaming platform for premium vertical series.',
             overview:
                 'A mobile-first streaming platform built around premium vertical series — short-form cinematic storytelling engineered for the way people actually watch.',
             role: 'Founder & Engineering',
             status: 'In production',
         },
-        sonder: {
-            category: 'AGENT',
-            description: 'Self-curating meeting memory you actually own.',
+        'portfolio-blog': {
+            category: 'WEB',
+            description: 'Full-stack portfolio and blog platform with an admin CMS.',
             overview:
-                'Self-curating meeting memory you actually own. Sonder captures, distills and indexes conversations into a private, portable knowledge layer.',
-            role: 'Creator',
-            status: 'Private beta',
+                'The site you are looking at — a full-stack portfolio and blog platform. A React 19 SPA backed by an Express 5 + PostgreSQL REST API, with JWT auth and an admin dashboard for publishing posts.',
+            role: 'Designer & Engineer',
+            status: 'Live',
         },
-        'company-os': {
-            category: 'SYSTEM',
-            description: 'Agent-powered operating system for modern startup workflows.',
+        'cto-agent': {
+            category: 'AGENT',
+            description: 'AI technical advisor that analyzes codebases and produces CTO-level insights.',
             overview:
-                'An agent-powered operating system for modern startup workflows — orchestrating tools, context and decisions across the org from a single surface.',
-            role: 'Architect',
+                'An AI-powered technical advisor that autonomously analyzes a GitHub repository — mapping architecture, surfacing technical debt, evaluating security and scalability risks, and generating prioritized engineering roadmaps. An engineering leadership layer, not a coding assistant.',
+            role: 'Creator & Engineering',
             status: 'In development',
         },
     },
@@ -134,27 +134,27 @@ const ja: Dict = {
     },
     projects: {
         verta: {
-            category: '会社',
+            category: 'モバイル',
             description: 'プレミアムな縦型シリーズのための、モバイルファースト型ストリーミングプラットフォーム。',
             overview:
                 'プレミアムな縦型シリーズを中心に設計した、モバイルファースト型のストリーミングプラットフォーム。実際の視聴スタイルに合わせて作り込んだ、ショートフォームでシネマティックなストーリーテリングを実現します。',
             role: 'ファウンダー兼エンジニアリング',
             status: '本番稼働中',
         },
-        sonder: {
-            category: 'エージェント',
-            description: '自分で所有できる、自動でまとまるミーティングメモリ。',
+        'portfolio-blog': {
+            category: 'ウェブ',
+            description: '管理画面付きの、フルスタックなポートフォリオ＆ブログプラットフォーム。',
             overview:
-                '自分で所有できる、自動でキュレーションされるミーティングメモリ。Sonder は会話を記録・要約し、プライベートで持ち運べるナレッジレイヤーとしてインデックス化します。',
-            role: 'クリエイター',
-            status: 'プライベートベータ',
+                '今ご覧になっているこのサイト —— フルスタックなポートフォリオ＆ブログプラットフォームです。React 19 の SPA を Express 5 + PostgreSQL の REST API が支え、JWT 認証と記事を公開するための管理ダッシュボードを備えています。',
+            role: 'デザイナー兼エンジニア',
+            status: '公開中',
         },
-        'company-os': {
-            category: 'システム',
-            description: 'モダンなスタートアップのワークフローを動かす、エージェント駆動のオペレーティングシステム。',
+        'cto-agent': {
+            category: 'エージェント',
+            description: 'コードベースを解析し、CTO レベルのインサイトを生み出す AI テクニカルアドバイザー。',
             overview:
-                'モダンなスタートアップのワークフローを動かす、エージェント駆動のオペレーティングシステム。ツール・コンテキスト・意思決定を、一つの画面から組織全体で連携・自動化します。',
-            role: 'アーキテクト',
+                'GitHub リポジトリを自律的に解析する AI テクニカルアドバイザー。アーキテクチャをマッピングし、技術的負債を洗い出し、セキュリティとスケーラビリティのリスクを評価して、優先順位付けされたエンジニアリングロードマップを生成します。コーディングアシスタントではなく、エンジニアリングリーダーシップのレイヤーです。',
+            role: 'クリエイター兼エンジニアリング',
             status: '開発中',
         },
     },

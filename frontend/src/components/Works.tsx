@@ -41,14 +41,15 @@ const BASE_PROJECTS: BaseProject[] = [
         video: '/verta-preview.mp4',
     },
     {
-        id: 'sonder',
-        title: 'SONDER',
-        tags: ['Next.js', 'AI Agents', 'Walrus', 'Sui'],
+        id: 'portfolio-blog',
+        title: 'PORTFOLIO BLOG',
+        tags: ['React', 'Node.js', 'PostgreSQL', 'TypeScript'],
+        video: '/portfolio-blog.mp4',
     },
     {
-        id: 'company-os',
-        title: 'COMPANY OS',
-        tags: ['TypeScript', 'LangGraph', 'Slack', 'Automation'],
+        id: 'cto-agent',
+        title: 'CTO AGENT',
+        tags: ['Next.js', 'LangGraph', 'RAG', 'AWS'],
     },
 ];
 
