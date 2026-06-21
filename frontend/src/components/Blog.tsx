@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getBlogs, type Blog } from '../api/blogs';
 import Button from './ui/Button';
+import { useI18n } from '../i18n/LanguageProvider';
 
 interface Entry {
     key: string;
@@ -10,23 +11,16 @@ interface Entry {
     meta: string;
 }
 
-// Sample entries fill empty slots so the journal reads as complete before posts exist.
-const SAMPLE_ENTRIES: Omit<Entry, 'key'>[] = [
-    { to: '/blogs', title: 'Building an AI-Native Company OS', meta: 'AI Systems • June 2026' },
-    { to: '/blogs', title: 'What Vertical Streaming Gets Right', meta: 'Startups • June 2026' },
-    { to: '/blogs', title: 'Memory, Agents, and Context', meta: 'AI Systems • June 2026' },
-    { to: '/blogs', title: 'The Future of Creator-Owned Media', meta: 'Web3 • June 2026' },
-];
-
-const formatMeta = (post: Blog): string => {
+const formatMeta = (post: Blog, locale: string): string => {
     const category = post.category?.trim();
     const date = post.createdAt
-        ? new Date(post.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+        ? new Date(post.createdAt).toLocaleDateString(locale, { month: 'long', year: 'numeric' })
         : null;
     return [category, date].filter(Boolean).join(' • ') || 'Draft';
 };
 
 const Blog = () => {
+    const { t, localize, lang } = useI18n();
     const [posts, setPosts] = useState<Blog[]>([]);
 
     useEffect(() => {
@@ -35,20 +29,23 @@ const Blog = () => {
             .catch(() => {});
     }, []);
 
+    const locale = lang === 'ja' ? 'ja-JP' : 'en-US';
+
     const entries: Entry[] = Array.from({ length: 4 }, (_, i) => {
         const post = posts[i];
         if (post) {
-            return { key: `post-${post.id}`, to: `/blogs/${post.id}`, title: post.title, meta: formatMeta(post) };
+            return { key: `post-${post.id}`, to: localize(`/blogs/${post.id}`), title: post.title, meta: formatMeta(post, locale) };
         }
-        const sample = SAMPLE_ENTRIES[i];
-        return { key: `sample-${i}`, ...sample };
+        // Sample entries fill empty slots so the journal reads as complete before posts exist.
+        const sample = t.blog.samples[i];
+        return { key: `sample-${i}`, to: localize('/blogs'), title: sample.title, meta: sample.meta };
     });
 
     return (
         <section id="blog" className="max-w-[1200px] mx-auto px-6 py-[120px]">
-            <h2 className="tracking-[0.2em] mb-[14px] text-[1.05rem]">BLOG</h2>
+            <h2 className="tracking-[0.2em] mb-[14px] text-[1.05rem]">{t.blog.heading}</h2>
             <p className="text-(--muted) text-[0.85rem] tracking-[0.04em] leading-[1.6] mb-[40px] max-w-[480px]">
-                Updated when I feel like it.
+                {t.blog.subtitle}
             </p>
 
             <div className="border-t border-(--border) mb-12">
@@ -91,7 +88,7 @@ const Blog = () => {
             </div>
 
             <div className="flex justify-center">
-                <Button to="/blogs">READ MORE</Button>
+                <Button to={localize('/blogs')}>{t.blog.readMore}</Button>
             </div>
         </section>
     );

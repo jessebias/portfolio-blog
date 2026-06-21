@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useScramble } from '../hooks/useScramble';
+import { useI18n } from '../i18n/LanguageProvider';
+import type { ProjectId } from '../i18n/translations';
 
+// Fully-resolved project (language-agnostic data merged with translated copy).
 interface Project {
-    id: string;
+    id: ProjectId;
     category: string;
     title: string;
     description: string;
@@ -14,43 +17,34 @@ interface Project {
     status: string;
 }
 
-// Flagship products & companies — the carousel is data-driven, so new entries
-// slot into the cylinder without any layout changes.
-const PROJECTS: Project[] = [
+// Language-agnostic project data — names, tags, links and assets. The
+// translatable copy (category, description, overview, role, status) lives in
+// the i18n dictionary and is merged in at render time, keyed by id.
+interface BaseProject {
+    id: ProjectId;
+    title: string;
+    tags: string[];
+    link?: string;
+    image?: string;
+}
+
+const BASE_PROJECTS: BaseProject[] = [
     {
         id: 'verta',
-        category: 'company',
         title: 'VERTA',
-        description: 'Mobile-first streaming platform for premium vertical series.',
         tags: ['Flutter', 'Node.js', 'AI', 'Solana'],
         link: 'https://www.verta.xyz',
         image: '/verta-preview.png',
-        overview:
-            'A mobile-first streaming platform built around premium vertical series — short-form cinematic storytelling engineered for the way people actually watch.',
-        role: 'Founder & Engineering',
-        status: 'In production',
     },
     {
         id: 'sonder',
-        category: 'agent',
         title: 'SONDER',
-        description: 'Self-curating meeting memory you actually own.',
         tags: ['Next.js', 'AI Agents', 'Walrus', 'Sui'],
-        overview:
-            'Self-curating meeting memory you actually own. Sonder captures, distills and indexes conversations into a private, portable knowledge layer.',
-        role: 'Creator',
-        status: 'Private beta',
     },
     {
         id: 'company-os',
-        category: 'system',
         title: 'COMPANY OS',
-        description: 'Agent-powered operating system for modern startup workflows.',
         tags: ['TypeScript', 'LangGraph', 'Slack', 'Automation'],
-        overview:
-            'An agent-powered operating system for modern startup workflows — orchestrating tools, context and decisions across the org from a single surface.',
-        role: 'Architect',
-        status: 'In development',
     },
 ];
 
@@ -194,6 +188,7 @@ const ProjectModal = ({
     onPrev: () => void;
     onNext: () => void;
 }) => {
+    const { t } = useI18n();
     return (
         <div
             role="dialog"
@@ -245,17 +240,17 @@ const ProjectModal = ({
                     </div>
 
                     <div className="mt-8 space-y-5">
-                        <DetailRow label="Overview">{project.overview}</DetailRow>
-                        <DetailRow label="Role">{project.role}</DetailRow>
-                        <DetailRow label="Stack">{project.tags.join(' · ')}</DetailRow>
-                        <DetailRow label="Status">
+                        <DetailRow label={t.works.overview}>{project.overview}</DetailRow>
+                        <DetailRow label={t.works.role}>{project.role}</DetailRow>
+                        <DetailRow label={t.works.stack}>{project.tags.join(' · ')}</DetailRow>
+                        <DetailRow label={t.works.status}>
                             <span className="inline-flex items-center gap-2">
                                 <span className="h-1.5 w-1.5 rounded-full bg-[rgba(255,255,255,0.5)]"></span>
                                 {project.status}
                             </span>
                         </DetailRow>
                         {project.link && (
-                            <DetailRow label="Website">
+                            <DetailRow label={t.works.website}>
                                 <a
                                     href={project.link}
                                     target="_blank"
@@ -301,7 +296,10 @@ const ProjectModal = ({
 
 // ── 3D cylindrical carousel ──────────────────────────────────────────────────
 const Works = () => {
-    const total = PROJECTS.length;
+    const { t } = useI18n();
+    // Merge language-agnostic data with the active language's copy.
+    const projects: Project[] = BASE_PROJECTS.map((p) => ({ ...p, ...t.projects[p.id] }));
+    const total = projects.length;
     const [active, setActive] = useState(0);
     const [geometry, setGeometry] = useState<Geometry>(() =>
         getGeometry(typeof window !== 'undefined' ? window.innerWidth : 1280),
@@ -333,11 +331,11 @@ const Works = () => {
     }, []);
 
     // Modal open/close lifecycle: lock scroll + drive the enter transition.
-    const openModal = useCallback((index: number) => setModalIndex(index), []);
+    const openModal = (index: number) => setModalIndex(index);
     const closeModal = useCallback(() => {
         setModalShown(false);
         window.setTimeout(() => setModalIndex(null), 200);
-    }, []);
+    }, [setModalShown, setModalIndex]);
 
     useEffect(() => {
         if (modalIndex === null) return;
@@ -395,9 +393,9 @@ const Works = () => {
         <section id="works" className="max-w-[1200px] mx-auto px-6 py-[120px]">
             <div className="flex items-end justify-between gap-6 mb-[40px]">
                 <div>
-                    <h2 className="tracking-[0.2em] mb-[14px] text-[1.05rem]">WORK</h2>
+                    <h2 className="tracking-[0.2em] mb-[14px] text-[1.05rem]">{t.works.heading}</h2>
                     <p className="text-(--muted) text-[0.85rem] tracking-[0.04em] leading-[1.6] max-w-[480px]">
-                        Building products from concept to production.
+                        {t.works.subtitle}
                     </p>
                 </div>
 
@@ -431,7 +429,7 @@ const Works = () => {
                 onTouchStart={onTouchStart}
                 onTouchEnd={onTouchEnd}
             >
-                {PROJECTS.map((project, index) => {
+                {projects.map((project, index) => {
                     const offset = offsetOf(index);
                     const isCenter = offset === 0;
                     return (
@@ -449,7 +447,7 @@ const Works = () => {
                                 <ProjectCard project={project} isCenter={isCenter} />
                                 {isCenter && (
                                     <span className="block text-center mt-5 text-[0.55rem] tracking-[0.22em] uppercase text-(--prefix)">
-                                        Click to expand
+                                        {t.works.clickToExpand}
                                     </span>
                                 )}
                             </button>
@@ -465,7 +463,7 @@ const Works = () => {
                                     className="group/visit absolute top-5 right-5 z-40 flex items-center gap-1.5 text-(--muted) no-underline transition-colors duration-300 hover:text-(--text)"
                                 >
                                     <span className="text-[0.55rem] tracking-[0.2em] uppercase opacity-0 -translate-x-1 transition-all duration-300 group-hover/visit:opacity-100 group-hover/visit:translate-x-0">
-                                        Visit
+                                        {t.works.visit}
                                     </span>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                         <line x1="7" y1="17" x2="17" y2="7"></line>
@@ -480,7 +478,7 @@ const Works = () => {
 
             {/* Position indicators */}
             <div className="flex items-center justify-center gap-2.5 mt-2">
-                {PROJECTS.map((project, index) => (
+                {projects.map((project, index) => (
                     <button
                         key={project.id}
                         onClick={() => goTo(index)}
@@ -497,7 +495,7 @@ const Works = () => {
 
             {modalIndex !== null && (
                 <ProjectModal
-                    project={PROJECTS[modalIndex]}
+                    project={projects[modalIndex]}
                     show={modalShown}
                     onClose={closeModal}
                     onPrev={() => setModalIndex((i) => (i === null ? i : (i - 1 + total) % total))}

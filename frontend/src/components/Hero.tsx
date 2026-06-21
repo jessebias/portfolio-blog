@@ -1,9 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useTypewriter } from '../hooks/useTypewriter';
+import { useI18n } from '../i18n/LanguageProvider';
 
 const SENSITIVITY = 0.8;
-
-const TAGLINE = 'Specialized in agentic AI systems, Web3 integrations, and production AI applications.';
 
 const Hero = () => {
     const sectionRef = useRef<HTMLElement>(null);
@@ -12,7 +11,8 @@ const Hero = () => {
     const prevXRef = useRef<number | null>(null);
     const targetTimeRef = useRef(0);
     const seekingRef = useRef(false);
-    const { displayed } = useTypewriter(TAGLINE);
+    const { t } = useI18n();
+    const { displayed } = useTypewriter(t.hero.tagline);
 
     // Exaggerated custom cursor — hero section only, mouse only.
     useEffect(() => {
@@ -126,7 +126,7 @@ const Hero = () => {
             <div className="relative z-10 order-1 w-full max-w-[1200px] mx-auto px-6 pt-28 pb-10 md:py-[120px] text-left">
                 <h1 className="text-[clamp(2.2rem,3.4vw,3rem)] tracking-[0.04em] font-medium leading-[1.05] m-0 mb-[18px]">JESSE BIAS</h1>
                 <p className="text-[0.78rem] tracking-[0.16em] text-[#9B9B9B] m-0 uppercase">
-                    Full-Stack AI Engineer | Creative
+                    {t.hero.role}
                 </p>
                 <p className="mt-6 max-w-[440px] text-[0.82rem] leading-[1.7] text-(--muted) min-h-[2.5em]">
                     {displayed}

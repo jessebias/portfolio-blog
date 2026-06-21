@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import SocialLinks from './SocialLinks';
+import { useI18n } from '../i18n/LanguageProvider';
 
 const prefersReducedMotion = () =>
     typeof window !== 'undefined' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const About = () => {
+    const { t } = useI18n();
     const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
     const [glare, setGlare] = useState({ x: 50, y: 50, on: false });
 
@@ -50,12 +52,9 @@ const About = () => {
                 </div>
 
                 <div>
-                    <h2 className="tracking-[0.18em] text-[1.2rem] mb-5">ABOUT</h2>
+                    <h2 className="tracking-[0.18em] text-[1.2rem] mb-5">{t.about.heading}</h2>
                     <p className="text-(--muted) leading-[1.7] max-w-[560px] m-0">
-                        I'm an AI-native full-stack engineer, mobile developer, and Web3 builder
-                        with a creative background in film, audio, and digital media. I build
-                        products end-to-end — from user experience and frontend applications to
-                        AI systems, backend infrastructure, mobile apps, and blockchain integrations.
+                        {t.about.bio}
                     </p>
                     <SocialLinks
                         containerClass="flex gap-5 mt-7"

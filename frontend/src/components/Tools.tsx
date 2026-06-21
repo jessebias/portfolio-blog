@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import awsLogo from "../assets/logos/aws.svg";
 import openaiLogo from "../assets/logos/openai.svg";
+import { useI18n } from "../i18n/LanguageProvider";
 
 const CARD_BASE =
     "relative rounded-[18px] border border-[rgba(255,255,255,0.06)] bg-[radial-gradient(120px_80px_at_30%_20%,rgba(255,255,255,0.06),transparent_70%),linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] grid place-items-center transition-[transform,border-color] duration-220 ease-out hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.14)] group";
@@ -97,18 +98,19 @@ const WEB3: Tech[] = [
 ];
 
 const Tools = () => {
+    const { t } = useI18n();
     return (
         <section id="tools" className="max-w-[1200px] mx-auto px-6 py-[120px]">
             <div className="border border-(--border) rounded-3xl bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] shadow-[0_18px_60px_rgba(0,0,0,0.55)]">
                 <div className="p-[34px] border-b border-(--border)">
-                    <h2 className="m-0 mb-2 tracking-[0.2em] text-[1.2rem]">TECH STACK</h2>
-                    <p className="m-0 text-(--muted) text-[0.8rem]">Building AI-native products across web, mobile, and Web3.</p>
+                    <h2 className="m-0 mb-2 tracking-[0.2em] text-[1.2rem]">{t.tools.heading}</h2>
+                    <p className="m-0 text-(--muted) text-[0.8rem]">{t.tools.subtitle}</p>
                 </div>
 
                 <div className="p-[24px_34px_30px]">
                     {/* Engineering — primary */}
                     <Divider className="mt-[12px] mb-[12px] text-[0.72rem] tracking-[0.18em] after:bg-[linear-gradient(90deg,rgba(255,255,255,0.18),transparent)]">
-                        Engineering
+                        {t.tools.engineering}
                     </Divider>
                     <div className="grid grid-cols-4 gap-[14px]">
                         {ENGINEERING.map((tech) => (
@@ -124,7 +126,7 @@ const Tools = () => {
                     {/* AI Systems — secondary, strongest emphasis */}
                     <Divider className="mt-[28px] mb-[14px] text-[0.74rem] tracking-[0.2em] text-(--text) after:bg-[linear-gradient(90deg,rgba(255,255,255,0.3),transparent)]">
                         <span className="inline-block w-[5px] h-[5px] rounded-full bg-white/70 shadow-[0_0_10px_rgba(255,255,255,0.45)]" />
-                        AI Systems
+                        {t.tools.aiSystems}
                     </Divider>
                     <div className="grid grid-cols-4 gap-[14px]">
                         {AI_SYSTEMS.map((tech) => (
@@ -141,7 +143,7 @@ const Tools = () => {
                     <div className="grid grid-cols-2 gap-[34px] mt-[28px]">
                         <div>
                             <Divider className="mb-[12px] text-[0.68rem] tracking-[0.18em] text-(--muted) after:bg-[linear-gradient(90deg,rgba(255,255,255,0.12),transparent)]">
-                                Mobile
+                                {t.tools.mobile}
                             </Divider>
                             <div className="grid grid-cols-2 gap-[14px]">
                                 {MOBILE.map((tech) => (
@@ -156,7 +158,7 @@ const Tools = () => {
                         </div>
                         <div>
                             <Divider className="mb-[12px] text-[0.68rem] tracking-[0.18em] text-(--muted) after:bg-[linear-gradient(90deg,rgba(255,255,255,0.12),transparent)]">
-                                Web3
+                                {t.tools.web3}
                             </Divider>
                             <div className="grid grid-cols-3 gap-[14px]">
                                 {WEB3.map((tech) => (

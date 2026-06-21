@@ -3,6 +3,7 @@ import { ReactLenis } from 'lenis/react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import { LanguageProvider } from '../i18n/LanguageProvider';
 
 /**
  * Layout Component
@@ -23,23 +24,25 @@ const Layout = () => {
     }, [pathname, hash]);
 
     return (
-        <ReactLenis root>
-            <div 
-                className="min-h-screen bg-[#050505] text-[#EAEAEA] font-mono selection:bg-[#666] selection:text-white"
-                style={{
-                    backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.03), transparent 70%)'
-                }}
-            >
-                <Navbar />
-                
-                {/* Main Content Area */}
-                <main>
-                    <Outlet />
-                </main>
-                
-                <Footer />
-            </div>
-        </ReactLenis>
+        <LanguageProvider>
+            <ReactLenis root>
+                <div
+                    className="min-h-screen bg-[#050505] text-[#EAEAEA] font-mono selection:bg-[#666] selection:text-white"
+                    style={{
+                        backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.03), transparent 70%)'
+                    }}
+                >
+                    <Navbar />
+
+                    {/* Main Content Area */}
+                    <main>
+                        <Outlet />
+                    </main>
+
+                    <Footer />
+                </div>
+            </ReactLenis>
+        </LanguageProvider>
     );
 };
 
