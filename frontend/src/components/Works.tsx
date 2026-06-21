@@ -13,6 +13,7 @@ interface Project {
     tags: string[];
     link?: string;
     image?: string;
+    video?: string;
     overview: string;
     role: string;
     status: string;
@@ -27,6 +28,7 @@ interface BaseProject {
     tags: string[];
     link?: string;
     image?: string;
+    video?: string;
 }
 
 const BASE_PROJECTS: BaseProject[] = [
@@ -35,7 +37,8 @@ const BASE_PROJECTS: BaseProject[] = [
         title: 'VERTA',
         tags: ['Flutter', 'Node.js', 'AI', 'Solana'],
         link: 'https://www.verta.xyz',
-        image: '/verta-preview.png',
+        image: '/verta-preview.jpg',
+        video: '/verta-preview.mp4',
     },
     {
         id: 'sonder',
@@ -73,7 +76,8 @@ const ProjectCard = ({
 }) => {
     const { scramble } = useScramble();
     const [imgFailed, setImgFailed] = useState(false);
-    const showImage = project.image && !imgFailed;
+    const showVideo = Boolean(project.video);
+    const showImage = !showVideo && project.image && !imgFailed;
 
     const handleScramble = (e: React.MouseEvent<HTMLElement>) => {
         const target = e.currentTarget.querySelector<HTMLElement>('[data-scramble]');
@@ -103,7 +107,20 @@ const ProjectCard = ({
 
             {/* Preview surface — the focal point */}
             <div className="aspect-[16/10] w-full relative overflow-hidden bg-[radial-gradient(circle_at_50%_40%,rgba(255,255,255,0.04)_0%,transparent_70%),#060606]">
-                {showImage ? (
+                {showVideo ? (
+                    <video
+                        src={project.video}
+                        poster={project.image}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload="metadata"
+                        className={`absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-500 ${
+                            isCenter ? 'opacity-100' : 'opacity-80'
+                        }`}
+                    />
+                ) : showImage ? (
                     <img
                         src={project.image}
                         alt={`${project.title} platform`}
