@@ -4,8 +4,10 @@ const About = () => {
     return (
         <section id="about" className="max-w-[1200px] mx-auto px-6 py-[120px]">
             <div className="grid grid-cols-[0.7fr_1.4fr] gap-12 items-center">
-                <div className="aspect-square rounded-[18px] bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.06),transparent_60%),#080808] border border-(--border) overflow-hidden">
+                <div className="relative aspect-square rounded-[18px] bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.06),transparent_60%),#080808] border border-(--border) overflow-hidden">
                     <img src="/headshot.jpg" alt="Jesse Bias" className="w-full h-full object-cover object-center" />
+                    {/* Subtle vignette — eases the studio backdrop into the dark theme */}
+                    <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_40%,transparent_45%,rgba(0,0,0,0.4)_100%)]"></div>
                 </div>
                 <div>
                     <h2 className="tracking-[0.18em] text-[1.2rem] mb-5">ABOUT</h2>
