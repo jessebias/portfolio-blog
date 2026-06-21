@@ -6,11 +6,36 @@ const SENSITIVITY = 0.8;
 const TAGLINE = 'Specialized in agentic AI systems, Web3 integrations, and production AI applications.';
 
 const Hero = () => {
+    const sectionRef = useRef<HTMLElement>(null);
+    const cursorRef = useRef<HTMLDivElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const prevXRef = useRef<number | null>(null);
     const targetTimeRef = useRef(0);
     const seekingRef = useRef(false);
     const { displayed } = useTypewriter(TAGLINE);
+
+    // Exaggerated custom cursor — hero section only, mouse only.
+    useEffect(() => {
+        const section = sectionRef.current;
+        const cursor = cursorRef.current;
+        if (!section || !cursor) return;
+
+        const move = (e: MouseEvent) => {
+            cursor.style.transform = `translate(${e.clientX - 3}px, ${e.clientY - 2}px)`;
+        };
+        const show = () => { cursor.style.opacity = '1'; };
+        const hide = () => { cursor.style.opacity = '0'; };
+
+        section.addEventListener('mousemove', move);
+        section.addEventListener('mouseenter', show);
+        section.addEventListener('mouseleave', hide);
+
+        return () => {
+            section.removeEventListener('mousemove', move);
+            section.removeEventListener('mouseenter', show);
+            section.removeEventListener('mouseleave', hide);
+        };
+    }, []);
 
     useEffect(() => {
         const video = videoRef.current;
@@ -80,7 +105,23 @@ const Hero = () => {
     }, []);
 
     return (
-        <section className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-(--bg) selection:bg-[#666] selection:text-white">
+        <section ref={sectionRef} className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-(--bg) selection:bg-[#666] selection:text-white md:cursor-none">
+            {/* Exaggerated custom cursor (desktop pointer only) */}
+            <div
+                ref={cursorRef}
+                aria-hidden="true"
+                className="hidden md:block fixed top-0 left-0 z-50 opacity-0 pointer-events-none will-change-transform transition-opacity duration-200"
+            >
+                <svg width="42" height="42" viewBox="0 0 24 24" fill="none" className="drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
+                    <path
+                        d="M2 1 L2 17 L6 13 L8.8 19.4 L11.5 18.2 L8.7 12 L14 12 Z"
+                        fill="#0a0a0a"
+                        stroke="#ffffff"
+                        strokeWidth="1.4"
+                        strokeLinejoin="round"
+                    />
+                </svg>
+            </div>
             {/* Content Layer */}
             <div className="relative z-10 order-1 w-full max-w-[1200px] mx-auto px-6 pt-28 pb-10 md:py-[120px] text-left">
                 <h1 className="text-[clamp(2.2rem,3.4vw,3rem)] tracking-[0.04em] font-medium leading-[1.05] m-0 mb-[18px]">JESSE BIAS</h1>
