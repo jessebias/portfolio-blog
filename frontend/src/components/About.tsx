@@ -36,8 +36,8 @@ const About = () => {
                         className="relative aspect-square rounded-[18px] bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.06),transparent_60%),#080808] border border-(--border) overflow-hidden transition-transform duration-300 ease-out will-change-transform [transform-style:preserve-3d]"
                     >
                         <img src="/headshot.jpg" alt="Jesse Bias" className="w-full h-full object-cover object-center" />
-                        {/* Subtle vignette — eases the studio backdrop into the dark theme */}
-                        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_40%,transparent_45%,rgba(0,0,0,0.4)_100%)]"></div>
+                        {/* Vignette — sinks the grey studio backdrop into the site's near-black theme while keeping the face lit */}
+                        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_38%,transparent_28%,rgba(0,0,0,0.55)_62%,rgba(0,0,0,0.92)_100%)]"></div>
                         {/* Glare — light sheen that tracks the cursor */}
                         <div
                             aria-hidden
