@@ -77,7 +77,7 @@ const Blogs = () => {
                             </div>
                             <div className="p-6 flex flex-col grow">
                                 <div className="flex justify-between text-xs text-[#666] tracking-widest mb-3 uppercase">
-                                    <span>{formatDate(item.created_at)}</span>
+                                    <span>{formatDate(item.createdAt)}</span>
                                     <span>{item.category}</span>
                                 </div>
                                 <h3 className="text-lg text-[#EAEAEA] mb-3 font-medium leading-snug uppercase tracking-wide line-clamp-2">{item.title}</h3>

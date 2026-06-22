@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getBlogs, type Blog } from '../api/blogs';
+import { getBlogs, type Blog as BlogPost } from '../api/blogs';
 import Button from './ui/Button';
 import { useI18n } from '../i18n/LanguageProvider';
 
@@ -11,7 +11,7 @@ interface Entry {
     meta: string;
 }
 
-const formatMeta = (post: Blog, locale: string): string => {
+const formatMeta = (post: BlogPost, locale: string): string => {
     const category = post.category?.trim();
     const date = post.createdAt
         ? new Date(post.createdAt).toLocaleDateString(locale, { month: 'long', year: 'numeric' })
@@ -21,7 +21,7 @@ const formatMeta = (post: Blog, locale: string): string => {
 
 const Blog = () => {
     const { t, localize, lang } = useI18n();
-    const [posts, setPosts] = useState<Blog[]>([]);
+    const [posts, setPosts] = useState<BlogPost[]>([]);
 
     useEffect(() => {
         getBlogs()
