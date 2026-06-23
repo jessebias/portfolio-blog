@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Dashboard — portfolio-blog</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #050505;
+  --surface: #0c0c0c;
+  --surface2:#111;
+  --border:  rgba(255,255,255,0.08);
+  --borderHi:rgba(255,255,255,0.20);
+  --text:    #EAEAEA;
+  --muted:   #666;
+  --dim:     #333;
+  --green:   #4dff91;
+  --red:     #ff4d4d;
+  --amber:   #ffb84d;
+  --blue:    #4db8ff;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Roboto Mono', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ─────────────────────────────── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 44px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+.logo { font-weight: 700; letter-spacing: .2em; font-size: 13px; }
+.subtitle { color: var(--muted); margin-left: 12px; font-size: 11px; }
+.header-right { display: flex; align-items: center; gap: 10px; }
+
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); transition: background .3s; }
+.dot.ok  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.dot.err { background: var(--red); }
+
+button {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 11px;
+  padding: 4px 10px;
+  cursor: pointer;
+  letter-spacing: .1em;
+  transition: border-color .15s;
+}
+button:hover { border-color: var(--borderHi); }
+button:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── Auth bar ────────────────────────────── */
+.auth-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 16px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,.01);
+  flex-shrink: 0;
+}
+.auth-label { color: var(--muted); font-size: 10px; letter-spacing: .14em; }
+.auth-bar input {
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit; font-size: 11px;
+  padding: 4px 8px; outline: none;
+  transition: border-color .15s;
+}
+.auth-bar input:focus { border-color: var(--borderHi); }
+#auth-msg { font-size: 11px; }
+#auth-msg.ok  { color: var(--green); }
+#auth-msg.err { color: var(--red); }
+
+/* ── Main layout ─────────────────────────── */
+.main { flex: 1; padding: 24px; display: flex; flex-direction: column; gap: 24px; }
+
+/* ── Suite card ──────────────────────────── */
+.suite-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.suite-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.suite-title {
+  font-weight: 700; letter-spacing: .12em; font-size: 13px;
+  display: flex; align-items: center; gap: 10px;
+}
+.suite-actions { display: flex; gap: 8px; }
+
+/* ── Summary badges ──────────────────────── */
+.badges { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.badge {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  min-width: 80px;
+}
+.badge-val { font-size: 20px; font-weight: 700; letter-spacing: .05em; }
+.badge-val.green { color: var(--green); }
+.badge-val.red   { color: var(--red); }
+.badge-val.amber { color: var(--amber); }
+.badge-val.blue  { color: var(--blue); }
+.badge-lbl { font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+
+/* ── Coverage table ──────────────────────── */
+.cov-table { width: 100%; border-collapse: collapse; }
+.cov-table thead th {
+  position: sticky; top: 0;
+  background: var(--surface);
+  text-align: left;
+  padding: 7px 14px;
+  color: var(--muted);
+  font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.cov-table thead th:not(:first-child) { text-align: right; }
+.cov-table tbody tr { border-bottom: 1px solid var(--border); transition: background .08s; }
+.cov-table tbody tr:hover { background: rgba(255,255,255,.02); }
+.cov-table td { padding: 6px 14px; white-space: nowrap; }
+.cov-table td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+.cov-total td { background: rgba(255,255,255,.03); font-weight: 600; }
+.file-path { color: var(--muted); font-size: 11px; }
+.file-path.total { color: var(--text); }
+
+.pct { font-weight: 600; }
+.pct.hi  { color: var(--green); }
+.pct.mid { color: var(--amber); }
+.pct.lo  { color: var(--red); }
+
+/* ── Bar ─────────────────────────────────── */
+.bar-wrap { display: inline-flex; align-items: center; gap: 6px; width: 100%; justify-content: flex-end; }
+.bar-bg { width: 60px; height: 4px; background: var(--dim); border-radius: 2px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 2px; transition: width .3s; }
+
+/* ── Terminal output ─────────────────────── */
+.terminal-wrap { position: relative; }
+.terminal-toggle {
+  width: 100%; padding: 8px 16px;
+  background: rgba(255,255,255,.02);
+  border: none;
+  border-top: 1px solid var(--border);
+  text-align: left;
+  color: var(--muted);
+  font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+  cursor: pointer;
+}
+.terminal-toggle:hover { color: var(--text); border-color: var(--borderHi); }
+.terminal {
+  display: none;
+  background: #020202;
+  padding: 16px;
+  max-height: 320px;
+  overflow-y: auto;
+  border-top: 1px solid var(--border);
+}
+.terminal.open { display: block; }
+.terminal pre { white-space: pre-wrap; word-break: break-all; font-size: 11px; line-height: 1.6; color: #ccc; }
+.terminal pre .pass { color: var(--green); }
+.terminal pre .fail { color: var(--red); }
+
+/* ── State messages ──────────────────────── */
+.state-msg {
+  padding: 40px 20px; text-align: center;
+  color: var(--muted); font-size: 11px; letter-spacing: .1em;
+}
+
+/* ── Spinner ─────────────────────────────── */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border: 2px solid var(--dim);
+  border-top-color: var(--text);
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  vertical-align: middle;
+}
+
+/* ── Footer ──────────────────────────────── */
+footer {
+  padding: 5px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.last-refresh { color: var(--muted); font-size: 10px; letter-spacing: .07em; }
+.hint { color: var(--dim); font-size: 10px; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div style="display:flex;align-items:center">
+    <span class="logo">TEST_DASHBOARD</span>
+    <span class="subtitle">// portfolio-blog · localhost:3000</span>
+  </div>
+  <div class="header-right">
+    <span id="dot" class="dot"></span>
+    <span id="status-txt" style="color:var(--muted);font-size:11px;letter-spacing:.07em">—</span>
+    <button onclick="loadCoverage()">↺ REFRESH</button>
+  </div>
+</header>
+
+<!-- Auth -->
+<div class="auth-bar">
+  <span class="auth-label">AUTH</span>
+  <input id="inp-email" type="email" placeholder="admin email" style="width:180px"
+         onkeydown="if(event.key==='Enter')doLogin()">
+  <input id="inp-pass" type="password" placeholder="password" style="width:140px"
+         onkeydown="if(event.key==='Enter')doLogin()">
+  <button onclick="doLogin()">LOGIN</button>
+  <button id="btn-logout" onclick="doLogout()" style="display:none;color:var(--red);border-color:rgba(255,77,77,.3)">LOGOUT</button>
+  <span id="auth-msg"></span>
+</div>
+
+<div class="main">
+
+  <!-- Backend Suite -->
+  <div class="suite-card" id="card-backend">
+    <div class="suite-header">
+      <div class="suite-title">
+        <span id="status-backend" class="dot"></span>
+        BACKEND
+        <span style="color:var(--muted);font-size:10px;font-weight:400">Jest + Supertest</span>
+      </div>
+      <div class="suite-actions">
+        <button onclick="runTests('backend')" id="run-backend">▶ RUN</button>
+      </div>
+    </div>
+    <div id="badges-backend" class="badges" style="display:none"></div>
+    <div id="cov-backend"><div class="state-msg">No coverage data — run <code>cd backend && npm run test:coverage</code> first</div></div>
+    <div class="terminal-wrap">
+      <button class="terminal-toggle" onclick="toggleTerminal('backend')" id="toggle-backend" style="display:none">▸ SHOW OUTPUT</button>
+      <div class="terminal" id="terminal-backend"><pre id="pre-backend"></pre></div>
+    </div>
+  </div>
+
+  <!-- Frontend Suite -->
+  <div class="suite-card" id="card-frontend">
+    <div class="suite-header">
+      <div class="suite-title">
+        <span id="status-frontend" class="dot"></span>
+        FRONTEND
+        <span style="color:var(--muted);font-size:10px;font-weight:400">Vitest + RTL</span>
+      </div>
+      <div class="suite-actions">
+        <button onclick="runTests('frontend')" id="run-frontend">▶ RUN</button>
+      </div>
+    </div>
+    <div id="badges-frontend" class="badges" style="display:none"></div>
+    <div id="cov-frontend"><div class="state-msg">No coverage data — run <code>cd frontend && npm run test:coverage</code> first</div></div>
+    <div class="terminal-wrap">
+      <button class="terminal-toggle" onclick="toggleTerminal('frontend')" id="toggle-frontend" style="display:none">▸ SHOW OUTPUT</button>
+      <div class="terminal" id="terminal-frontend"><pre id="pre-frontend"></pre></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span class="last-refresh" id="last-refresh">Never refreshed</span>
+  <span class="hint">Coverage data is generated by npm run test:coverage in each suite directory</span>
+</footer>
+
+<script>
+'use strict';
+
+const API   = 'http://localhost:3000';
+let   token = localStorage.getItem('dbv_token') || null;
+
+// ── Helpers ───────────────────────────────────────────────────────────
+function setStatus(state, msg) {
+  document.getElementById('dot').className       = 'dot' + (state === 'ok' ? ' ok' : state === 'err' ? ' err' : '');
+  document.getElementById('status-txt').textContent = msg;
+}
+
+function setAuthMsg(cls, text) {
+  const el = document.getElementById('auth-msg');
+  el.className = cls; el.textContent = text;
+}
+
+function authHeaders() {
+  return token ? { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+               : { 'Content-Type': 'application/json' };
+}
+
+function pctClass(n) {
+  if (n == null) return '';
+  return n >= 80 ? 'hi' : n >= 50 ? 'mid' : 'lo';
+}
+
+function pctBarColor(n) {
+  return n >= 80 ? 'var(--green)' : n >= 50 ? 'var(--amber)' : 'var(--red)';
+}
+
+function fmtPct(n) {
+  if (n == null) return '—';
+  return n.toFixed(1) + '%';
+}
+
+function stripRoot(path, suite) {
+  // Remove absolute prefix up to suite root
+  const markers = suite === 'backend'
+    ? ['/backend/', '/module-8/']
+    : ['/frontend/src/', '/frontend/', '/module-7/'];
+  for (const m of markers) {
+    const i = path.indexOf(m);
+    if (i !== -1) return path.slice(i + m.length);
+  }
+  // fallback: just the filename
+  return path.split('/').slice(-2).join('/');
+}
+
+// ── Coverage render ───────────────────────────────────────────────────
+function renderCoverage(suite, data) {
+  if (!data) return;
+
+  const total = data.total;
+  const files = Object.entries(data).filter(([k]) => k !== 'total');
+
+  // Badges
+  const bd = document.getElementById(`badges-${suite}`);
+  bd.style.display = 'flex';
+  bd.innerHTML = `
+    <div class="badge">
+      <span class="badge-val ${pctClass(total.statements.pct)}">${fmtPct(total.statements.pct)}</span>
+      <span class="badge-lbl">Statements</span>
+    </div>
+    <div class="badge">
+      <span class="badge-val ${pctClass(total.branches.pct)}">${fmtPct(total.branches.pct)}</span>
+      <span class="badge-lbl">Branches</span>
+    </div>
+    <div class="badge">
+      <span class="badge-val ${pctClass(total.functions.pct)}">${fmtPct(total.functions.pct)}</span>
+      <span class="badge-lbl">Functions</span>
+    </div>
+    <div class="badge">
+      <span class="badge-val ${pctClass(total.lines.pct)}">${fmtPct(total.lines.pct)}</span>
+      <span class="badge-lbl">Lines</span>
+    </div>
+  `;
+
+  // Table
+  const rows = files
+    .sort((a, b) => (a[1].statements.pct ?? 0) - (b[1].statements.pct ?? 0))
+    .map(([path, cov]) => {
+      const s = cov.statements.pct;
+      const b = cov.branches.pct;
+      const f = cov.functions.pct;
+      const l = cov.lines.pct;
+      const bar = (n) => n == null ? '—' : `
+        <div class="bar-wrap">
+          <span class="pct ${pctClass(n)}">${fmtPct(n)}</span>
+          <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(n,100)}%;background:${pctBarColor(n)}"></div></div>
+        </div>`;
+      return `<tr>
+        <td class="file-path">${esc(stripRoot(path, suite))}</td>
+        <td>${bar(s)}</td>
+        <td>${bar(b)}</td>
+        <td>${bar(f)}</td>
+        <td>${bar(l)}</td>
+      </tr>`;
+    }).join('');
+
+  const totalRow = `<tr class="cov-total">
+    <td class="file-path total">TOTAL</td>
+    <td><span class="pct ${pctClass(total.statements.pct)}">${fmtPct(total.statements.pct)}</span></td>
+    <td><span class="pct ${pctClass(total.branches.pct)}">${fmtPct(total.branches.pct)}</span></td>
+    <td><span class="pct ${pctClass(total.functions.pct)}">${fmtPct(total.functions.pct)}</span></td>
+    <td><span class="pct ${pctClass(total.lines.pct)}">${fmtPct(total.lines.pct)}</span></td>
+  </tr>`;
+
+  document.getElementById(`cov-${suite}`).innerHTML = `
+    <div style="overflow-x:auto">
+      <table class="cov-table">
+        <thead><tr>
+          <th>File</th>
+          <th>Statements</th>
+          <th>Branches</th>
+          <th>Functions</th>
+          <th>Lines</th>
+        </tr></thead>
+        <tbody>${rows}${totalRow}</tbody>
+      </table>
+    </div>`;
+}
+
+// ── Load coverage ─────────────────────────────────────────────────────
+async function loadCoverage() {
+  if (!token) { setStatus('err', 'login required'); return; }
+  setStatus('', '…');
+  try {
+    const res  = await fetch(`${API}/api/meta/tests/coverage`, { headers: authHeaders() });
+    if (!res.ok) throw new Error(`${res.status}`);
+    const data = await res.json();
+
+    if (data.backend)  renderCoverage('backend',  data.backend);
+    if (data.frontend) renderCoverage('frontend', data.frontend);
+
+    if (!data.backend && !data.frontend) {
+      setStatus('ok', 'connected — no coverage data yet');
+    } else {
+      setStatus('ok', 'connected');
+    }
+    document.getElementById('last-refresh').textContent =
+      'Last refresh: ' + new Date().toLocaleTimeString();
+  } catch (err) {
+    setStatus('err', err.message);
+  }
+}
+
+// ── Run tests ─────────────────────────────────────────────────────────
+async function runTests(suite) {
+  if (!token) { setAuthMsg('err', 'login required'); return; }
+
+  const btn = document.getElementById(`run-${suite}`);
+  const dot = document.getElementById(`status-${suite}`);
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> RUNNING';
+  dot.className = 'dot';
+
+  try {
+    const res  = await fetch(`${API}/api/meta/tests/run`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ suite }),
+    });
+    const data = await res.json();
+
+    dot.className = 'dot ' + (data.success ? 'ok' : 'err');
+
+    // Show output
+    const pre = document.getElementById(`pre-${suite}`);
+    pre.textContent = data.output;
+
+    const toggle = document.getElementById(`toggle-${suite}`);
+    toggle.style.display = 'block';
+    toggleTerminal(suite, true);
+
+    // Re-fetch coverage (test:coverage not run here, just test — no new coverage file)
+    // but refresh display anyway
+    await loadCoverage();
+
+  } catch (err) {
+    document.getElementById(`status-${suite}`).className = 'dot err';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '▶ RUN';
+  }
+}
+
+// ── Terminal toggle ───────────────────────────────────────────────────
+function toggleTerminal(suite, forceOpen) {
+  const el  = document.getElementById(`terminal-${suite}`);
+  const btn = document.getElementById(`toggle-${suite}`);
+  const open = forceOpen ?? !el.classList.contains('open');
+  el.classList.toggle('open', open);
+  btn.textContent = (open ? '▾ HIDE OUTPUT' : '▸ SHOW OUTPUT');
+}
+
+// ── Auth ──────────────────────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('inp-email').value.trim();
+  const pass  = document.getElementById('inp-pass').value;
+  if (!email || !pass) { setAuthMsg('err', 'required'); return; }
+  setAuthMsg('', 'authenticating…');
+  try {
+    const res  = await fetch(`${API}/api/auth/login`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'login failed');
+    token = data.token;
+    localStorage.setItem('dbv_token', token);
+    document.getElementById('inp-pass').value = '';
+    document.getElementById('btn-logout').style.display = 'inline-block';
+    setAuthMsg('ok', `✓ ${data.user?.email}`);
+    loadCoverage();
+  } catch (err) {
+    setAuthMsg('err', '✗ ' + err.message);
+  }
+}
+
+function doLogout() {
+  token = null;
+  localStorage.removeItem('dbv_token');
+  document.getElementById('btn-logout').style.display = 'none';
+  setAuthMsg('', '');
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────
+if (token) {
+  document.getElementById('btn-logout').style.display = 'inline-block';
+  setAuthMsg('ok', '✓ token restored');
+  loadCoverage();
+}
+</script>
+</body>
+</html>

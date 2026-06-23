@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DB Viewer — portfolio-blog</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #050505;
+  --surface: #0c0c0c;
+  --surface2:#111;
+  --border:  rgba(255,255,255,0.08);
+  --borderHi:rgba(255,255,255,0.20);
+  --text:    #EAEAEA;
+  --muted:   #666;
+  --dim:     #333;
+  --green:   #4dff91;
+  --red:     #ff4d4d;
+  --amber:   #ffb84d;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Roboto Mono', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Header ───────────────────────────────── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 44px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+.logo { font-weight: 700; letter-spacing: .2em; font-size: 13px; }
+.subtitle { color: var(--muted); margin-left: 12px; font-size: 11px; }
+.header-right { display: flex; align-items: center; gap: 10px; }
+
+.dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--dim); flex-shrink: 0; transition: background .3s;
+}
+.dot.ok  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.dot.err { background: var(--red); }
+
+button {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 11px;
+  padding: 4px 10px;
+  cursor: pointer;
+  letter-spacing: .1em;
+  transition: border-color .15s, color .15s;
+}
+button:hover { border-color: var(--borderHi); }
+button:active { opacity: .7; }
+
+/* ── Auth bar ─────────────────────────────── */
+.auth-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,.01);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.auth-label { color: var(--muted); font-size: 10px; letter-spacing: .14em; }
+.auth-bar input {
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 11px;
+  padding: 4px 8px;
+  outline: none;
+  transition: border-color .15s;
+}
+.auth-bar input:focus { border-color: var(--borderHi); }
+#auth-msg { font-size: 11px; letter-spacing: .05em; }
+#auth-msg.ok  { color: var(--green); }
+#auth-msg.err { color: var(--red); }
+
+/* ── Layout ───────────────────────────────── */
+.layout { display: flex; flex: 1; overflow: hidden; }
+
+/* ── Sidebar ──────────────────────────────── */
+.sidebar {
+  width: 160px;
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+  padding: 12px 0;
+  overflow-y: auto;
+}
+.sidebar-label {
+  padding: 2px 16px 6px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.tbl-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 16px;
+  cursor: pointer;
+  transition: background .1s;
+}
+.tbl-item:hover   { background: rgba(255,255,255,.03); }
+.tbl-item.active  { background: rgba(255,255,255,.06); color: #fff; }
+.tbl-badge { color: var(--muted); font-size: 10px; }
+
+/* ── Content ──────────────────────────────── */
+.content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.tbl-name { font-weight: 700; letter-spacing: .1em; font-size: 13px; }
+.row-count { color: var(--muted); font-size: 11px; margin-left: 10px; }
+
+.table-scroll { flex: 1; overflow: auto; }
+
+table { width: 100%; border-collapse: collapse; }
+
+thead th {
+  position: sticky; top: 0;
+  background: var(--surface);
+  text-align: left;
+  padding: 7px 14px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+thead th:hover { color: var(--text); }
+thead th.asc::after  { content: ' ↑'; color: var(--text); }
+thead th.desc::after { content: ' ↓'; color: var(--text); }
+
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background .08s;
+}
+tbody tr:hover    { background: rgba(255,255,255,.03); }
+tbody tr.selected { background: rgba(255,255,255,.07); }
+
+td {
+  padding: 7px 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+.col-id      { width: 44px; color: var(--muted); }
+.col-title   { max-width: 280px; }
+.col-author  { max-width: 160px; color: var(--muted); }
+.col-date    { max-width: 180px; color: var(--amber); font-size: 11px; }
+.col-null    { color: var(--dim); font-style: italic; }
+
+/* ── Detail panel ─────────────────────────── */
+.detail {
+  width: 360px;
+  border-left: 1px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width .18s ease;
+}
+.detail.hidden { width: 0; overflow: hidden; }
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.detail-heading { color: var(--muted); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+
+.detail-body { flex: 1; overflow-y: auto; padding: 14px; }
+
+.field { margin-bottom: 14px; }
+.fkey {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.fval { word-break: break-word; white-space: pre-wrap; line-height: 1.6; }
+.fval.is-id   { color: var(--muted); }
+.fval.is-date { color: var(--amber); }
+.fval.is-null { color: var(--dim); font-style: italic; }
+.fval.is-content {
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--surface2);
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+/* ── View toggle ──────────────────────────── */
+.view-toggle { display: flex; gap: 4px; }
+.view-btn {
+  font-size: 10px; letter-spacing: .12em;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.view-btn.active { border-color: var(--borderHi); color: var(--text); background: rgba(255,255,255,.05); }
+.view-btn:hover  { color: var(--text); }
+
+/* ── Schema view ──────────────────────────── */
+#schema-view { display: none; flex: 1; overflow: auto; flex-direction: column; }
+.schema-tbl { width: 100%; border-collapse: collapse; }
+.schema-tbl thead th {
+  position: sticky; top: 0;
+  background: var(--surface);
+  text-align: left;
+  padding: 7px 14px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  cursor: default;
+}
+.schema-tbl tbody tr { border-bottom: 1px solid var(--border); }
+.schema-tbl tbody tr:hover { background: rgba(255,255,255,.02); }
+.schema-tbl td { padding: 7px 14px; white-space: nowrap; }
+.s-pos  { width: 36px; color: var(--muted); }
+.s-name { font-weight: 600; min-width: 140px; }
+.s-type { color: var(--amber); min-width: 160px; }
+.s-len  { color: var(--muted); width: 80px; }
+.s-null { width: 80px; }
+.s-default { color: var(--muted); font-size: 11px; }
+.nullable-yes { color: var(--green); }
+.nullable-no  { color: var(--dim); }
+
+/* ── State messages ───────────────────────── */
+.state-msg {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: .1em;
+}
+
+/* ── Footer ───────────────────────────────── */
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+.last-refresh { color: var(--muted); font-size: 10px; letter-spacing: .07em; }
+.ar-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div style="display:flex;align-items:center">
+    <span class="logo">DB_VIEWER</span>
+    <span class="subtitle">// portfolio-blog · localhost:3000</span>
+  </div>
+  <div class="header-right">
+    <span id="dot" class="dot"></span>
+    <span id="status-txt" style="color:var(--muted);font-size:11px;letter-spacing:.07em">—</span>
+    <button onclick="refresh()">↺ REFRESH</button>
+  </div>
+</header>
+
+<!-- Auth -->
+<div class="auth-bar">
+  <span class="auth-label">AUTH</span>
+  <input id="inp-email" type="email" placeholder="admin email" style="width:180px"
+         onkeydown="if(event.key==='Enter')doLogin()">
+  <input id="inp-pass"  type="password" placeholder="password" style="width:140px"
+         onkeydown="if(event.key==='Enter')doLogin()">
+  <button onclick="doLogin()">LOGIN</button>
+  <button id="btn-logout" onclick="doLogout()" style="display:none;color:var(--red);border-color:rgba(255,77,77,.3)">LOGOUT</button>
+  <span id="auth-msg"></span>
+</div>
+
+<!-- Layout -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-label">Tables</div>
+    <div class="tbl-item active" data-table="blogs">
+      <span>blogs</span>
+      <span class="tbl-badge" id="badge-blogs">—</span>
+    </div>
+    <div class="tbl-item" data-table="users">
+      <span>users</span>
+      <span class="tbl-badge" id="badge-users">—</span>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div class="content">
+    <div class="toolbar">
+      <div style="display:flex;align-items:center">
+        <span class="tbl-name" id="tbl-name">blogs</span>
+        <span class="row-count" id="row-count"></span>
+      </div>
+      <div class="view-toggle">
+        <button class="view-btn active" id="btn-data"   onclick="switchView('data')">DATA</button>
+        <button class="view-btn"        id="btn-schema" onclick="switchView('schema')">SCHEMA</button>
+      </div>
+    </div>
+
+    <div class="table-scroll" id="data-view">
+      <div class="state-msg" id="state-msg">Connecting to localhost:3000…</div>
+      <table id="data-table" style="display:none">
+        <thead id="thead"></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div id="schema-view">
+      <div class="state-msg" id="schema-msg"></div>
+      <table class="schema-tbl" id="schema-table" style="display:none">
+        <thead>
+          <tr>
+            <th class="s-pos">#</th>
+            <th class="s-name">column</th>
+            <th class="s-type">type</th>
+            <th class="s-len">max_len</th>
+            <th class="s-null">nullable</th>
+            <th class="s-default">default</th>
+          </tr>
+        </thead>
+        <tbody id="schema-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Detail panel -->
+  <aside class="detail hidden" id="detail">
+    <div class="detail-header">
+      <span class="detail-heading" id="detail-heading">record</span>
+      <button onclick="closeDetail()">✕</button>
+    </div>
+    <div class="detail-body" id="detail-body"></div>
+  </aside>
+
+</div>
+
+<!-- Footer -->
+<footer>
+  <span class="last-refresh" id="last-refresh">Never refreshed</span>
+  <label class="ar-label">
+    <input type="checkbox" id="ar-chk" onchange="toggleAR()">
+    AUTO-REFRESH 30s
+  </label>
+</footer>
+
+<script>
+'use strict';
+
+const API = 'http://localhost:3000';
+
+// ── State ────────────────────────────────────────────────────────────
+let token       = localStorage.getItem('dbv_token') || null;
+let rows        = [];
+let activeTable = 'blogs';
+let activeView  = 'data';
+let sortCol     = null;
+let sortDir     = 1;   // 1=asc, -1=desc
+let selectedId  = null;
+let arTimer     = null;
+
+// ── Table definitions ─────────────────────────────────────────────────
+const DEFS = {
+  blogs: { url: '/api/blogs' },
+  users: { url: '/api/meta/users' }
+};
+
+// Derived dynamically from the first API row each load
+let dynamicCols = [];
+
+// Walk a row object (flattening nested objects with dot-notation keys)
+// and build a column descriptor array.
+function buildCols(row) {
+  const cols = [];
+  (function walk(obj, prefix) {
+    for (const [k, v] of Object.entries(obj)) {
+      const key = prefix ? `${prefix}.${k}` : k;
+      if (v !== null && typeof v === 'object' && !Array.isArray(v)) {
+        walk(v, key);
+      } else {
+        const isDate = /At$/.test(key) || (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(v));
+        const label  = key.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
+        cols.push({ key, label, isDate });
+      }
+    }
+  })(row, '');
+  return cols;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────
+function dig(obj, path) {
+  return path.split('.').reduce((o, k) => (o != null ? o[k] : undefined), obj);
+}
+
+function fmtDate(v) {
+  if (!v) return null;
+  const d = new Date(v);
+  return isNaN(d) ? v : d.toLocaleString();
+}
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function setStatus(state, msg) {
+  const dot = document.getElementById('dot');
+  dot.className = 'dot' + (state === 'ok' ? ' ok' : state === 'err' ? ' err' : '');
+  document.getElementById('status-txt').textContent = msg;
+}
+
+// ── Render table ──────────────────────────────────────────────────────
+function render() {
+  const thead = document.getElementById('thead');
+  const tbody = document.getElementById('tbody');
+  const table = document.getElementById('data-table');
+  const msg   = document.getElementById('state-msg');
+
+  if (!rows.length) {
+    thead.innerHTML     = '';
+    tbody.innerHTML     = '';
+    table.style.display = 'none';
+    msg.style.display   = 'block';
+    msg.textContent     = 'No rows in table.';
+    return;
+  }
+
+  // Header — built from dynamicCols
+  thead.innerHTML = '<tr>' + dynamicCols.map((c, i) =>
+    `<th data-i="${i}">${esc(c.label)}</th>`
+  ).join('') + '</tr>';
+
+  thead.querySelectorAll('th').forEach(th => {
+    const i = +th.dataset.i;
+    th.className = sortCol === i ? (sortDir > 0 ? 'asc' : 'desc') : '';
+    th.onclick = () => sortBy(i);
+  });
+
+  // Sort
+  let data = [...rows];
+  if (sortCol !== null && dynamicCols[sortCol]) {
+    const col = dynamicCols[sortCol];
+    data.sort((a, b) => {
+      const av = dig(a, col.key) ?? '';
+      const bv = dig(b, col.key) ?? '';
+      return String(av).localeCompare(String(bv), undefined, { numeric: true }) * sortDir;
+    });
+  }
+
+  // Rows
+  tbody.innerHTML = data.map(row => {
+    const sel   = row.id === selectedId ? 'selected' : '';
+    const cells = dynamicCols.map(c => {
+      const raw = dig(row, c.key);
+      let val   = c.isDate ? fmtDate(raw) : (raw ?? null);
+      // Truncate long strings in the table view
+      if (typeof val === 'string' && val.length > 72) val = val.slice(0, 72) + '…';
+      const display = val == null
+        ? '<span class="col-null">null</span>'
+        : esc(String(val));
+      const cls = c.isDate ? 'col-date' : c.key === 'id' ? 'col-id' : '';
+      return `<td class="${cls}">${display}</td>`;
+    }).join('');
+    return `<tr class="${sel}" data-id="${row.id}">${cells}</tr>`;
+  }).join('');
+
+  table.style.display = '';
+  msg.style.display   = 'none';
+
+  // Row click
+  tbody.querySelectorAll('tr').forEach(tr => {
+    tr.onclick = () => selectRow(+tr.dataset.id);
+  });
+
+  // Stats
+  const n = rows.length;
+  document.getElementById('row-count').textContent = `${n} row${n !== 1 ? 's' : ''}`;
+  const badge = document.getElementById(`badge-${activeTable}`);
+  if (badge) badge.textContent = n;
+}
+
+// ── Sort ──────────────────────────────────────────────────────────────
+function sortBy(i) {
+  sortDir = (sortCol === i) ? sortDir * -1 : 1;
+  sortCol = i;
+  render();
+}
+
+// ── Select row → detail panel ─────────────────────────────────────────
+function selectRow(id) {
+  selectedId = id;
+  const row = rows.find(r => r.id === id);
+  if (!row) return;
+
+  // Highlight
+  document.querySelectorAll('#tbody tr').forEach(tr =>
+    tr.classList.toggle('selected', +tr.dataset.id === id)
+  );
+
+  // Open panel
+  document.getElementById('detail').classList.remove('hidden');
+  document.getElementById('detail-heading').textContent = `blogs / id:${id}`;
+
+  // Flatten nested object into fields list
+  const fields = [];
+  (function walk(obj, prefix) {
+    for (const [k, v] of Object.entries(obj)) {
+      const key = prefix ? `${prefix}.${k}` : k;
+      if (v !== null && typeof v === 'object' && !Array.isArray(v)) {
+        walk(v, key);
+      } else {
+        fields.push([key, v]);
+      }
+    }
+  })(row, '');
+
+  document.getElementById('detail-body').innerHTML = fields.map(([k, v]) => {
+    const isNull    = v == null;
+    const isId      = k === 'id' || k.endsWith('.id');
+    const isDate    = /at$/i.test(k);
+    const isContent = k === 'content';
+
+    let valHtml;
+    if (isNull) {
+      valHtml = `<span class="fval is-null">null</span>`;
+    } else if (isContent) {
+      valHtml = `<div class="fval is-content">${esc(String(v))}</div>`;
+    } else {
+      const display = isDate ? (fmtDate(v) ?? esc(String(v))) : esc(String(v));
+      const cls = isId ? 'is-id' : isDate ? 'is-date' : '';
+      valHtml = `<span class="fval ${cls}">${display}</span>`;
+    }
+
+    return `<div class="field"><div class="fkey">${esc(k)}</div>${valHtml}</div>`;
+  }).join('');
+}
+
+function closeDetail() {
+  selectedId = null;
+  document.getElementById('detail').classList.add('hidden');
+  document.querySelectorAll('#tbody tr').forEach(tr => tr.classList.remove('selected'));
+}
+
+// ── Data fetch ────────────────────────────────────────────────────────
+async function loadData() {
+  setStatus('', '…');
+  const def = DEFS[activeTable];
+  const hdrs = token ? { Authorization: `Bearer ${token}` } : {};
+
+  try {
+    const res  = await fetch(API + def.url, { headers: hdrs });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const data = await res.json();
+    rows = Array.isArray(data) ? data : [data];
+    if (rows.length > 0) dynamicCols = buildCols(rows[0]);
+    sortCol = null;
+    render();
+    setStatus('ok', 'connected');
+    document.getElementById('last-refresh').textContent =
+      'Last refresh: ' + new Date().toLocaleTimeString();
+  } catch (err) {
+    rows = [];
+    render();
+    setStatus('err', err.message);
+    document.getElementById('state-msg').style.display = 'block';
+    document.getElementById('state-msg').textContent   = '⚠ ' + err.message;
+  }
+}
+
+function refresh() {
+  if (activeView === 'schema') loadSchema(); else loadData();
+}
+
+// ── View toggle ───────────────────────────────────────────────────────
+function switchView(view) {
+  activeView = view;
+  const isData = view === 'data';
+  document.getElementById('btn-data').classList.toggle('active', isData);
+  document.getElementById('btn-schema').classList.toggle('active', !isData);
+  document.getElementById('data-view').style.display   = isData ? '' : 'none';
+  document.getElementById('schema-view').style.display = isData ? 'none' : 'flex';
+  if (!isData) { closeDetail(); loadSchema(); }
+}
+
+// ── Schema fetch ──────────────────────────────────────────────────────
+async function loadSchema() {
+  const msg   = document.getElementById('schema-msg');
+  const table = document.getElementById('schema-table');
+  const tbody = document.getElementById('schema-tbody');
+
+  msg.textContent     = 'Loading schema…';
+  msg.style.display   = 'block';
+  table.style.display = 'none';
+
+  try {
+    const res  = await fetch(`${API}/api/meta/schema/${activeTable}`);
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const cols = await res.json();
+
+    tbody.innerHTML = cols.map(c => `<tr>
+      <td class="s-pos">${c.position}</td>
+      <td class="s-name">${esc(c.column_name)}</td>
+      <td class="s-type">${esc(c.data_type)}</td>
+      <td class="s-len">${c.character_maximum_length ?? '—'}</td>
+      <td class="s-null ${c.is_nullable === 'YES' ? 'nullable-yes' : 'nullable-no'}">${c.is_nullable === 'YES' ? 'YES' : 'NO'}</td>
+      <td class="s-default">${c.column_default ? esc(c.column_default) : '—'}</td>
+    </tr>`).join('');
+
+    msg.style.display   = 'none';
+    table.style.display = '';
+  } catch (err) {
+    msg.textContent = '⚠ ' + err.message;
+  }
+}
+
+// ── Switch table (sidebar) ────────────────────────────────────────────
+document.querySelectorAll('.tbl-item').forEach(el => {
+  el.onclick = () => {
+    document.querySelectorAll('.tbl-item').forEach(x => x.classList.remove('active'));
+    el.classList.add('active');
+    activeTable = el.dataset.table;
+    sortCol = null; sortDir = 1;
+    closeDetail();
+    document.getElementById('tbl-name').textContent = activeTable;
+    loadData();
+  };
+});
+
+// ── Auth ──────────────────────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('inp-email').value.trim();
+  const pass  = document.getElementById('inp-pass').value;
+  const msg   = document.getElementById('auth-msg');
+
+  if (!email || !pass) { setAuthMsg('err', 'email and password required'); return; }
+
+  setAuthMsg('', 'authenticating…');
+
+  try {
+    const res  = await fetch(`${API}/api/auth/login`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email, password: pass })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'login failed');
+
+    token = data.token;
+    localStorage.setItem('dbv_token', token);
+    document.getElementById('inp-pass').value = '';
+    document.getElementById('btn-logout').style.display = 'inline-block';
+    setAuthMsg('ok', `✓ ${data.user?.email} [${data.user?.role}]`);
+    loadData();
+  } catch (err) {
+    setAuthMsg('err', '✗ ' + err.message);
+  }
+}
+
+function doLogout() {
+  token = null;
+  localStorage.removeItem('dbv_token');
+  document.getElementById('btn-logout').style.display = 'none';
+  setAuthMsg('', '');
+  loadData();
+}
+
+function setAuthMsg(cls, text) {
+  const el = document.getElementById('auth-msg');
+  el.className = cls;
+  el.textContent = text;
+}
+
+// ── Auto-refresh ──────────────────────────────────────────────────────
+function toggleAR() {
+  clearInterval(arTimer);
+  if (document.getElementById('ar-chk').checked) {
+    arTimer = setInterval(loadData, 30_000);
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────
+if (token) {
+  document.getElementById('btn-logout').style.display = 'inline-block';
+  setAuthMsg('ok', '✓ token restored from storage');
+}
+
+loadData();
+</script>
+</body>
+</html>
