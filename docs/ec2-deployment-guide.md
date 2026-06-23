@@ -38,10 +38,10 @@ frontend live on the same box; Nginx serves the frontend and reverse-proxies
 
 - AWS account + a domain you can point at the instance (for HTTPS).
 - SSH key pair for the instance.
-- Code lives in **two separate git repos** (`frontend/`, `backend/`); the repo
-  root is not version-controlled. There is no single repo to clone — deploys
-  push your local working tree to the server via **rsync** (see §5). Your SSH key
-  is all you need; no server-side clone or GitHub deploy key required.
+- Code lives in a single **monorepo** (`frontend/` + `backend/` in one repo:
+  `github.com/jessebias/portfolio-blog`). Deploys don't use git on the server —
+  they push your local working tree via **rsync** (see §5). Your SSH key is all
+  you need; no server-side clone or GitHub deploy key required.
 
 ---
 
@@ -141,18 +141,11 @@ sudo -u postgres psql -c "\l portfolio_blog"
 
 ## 5. Get the code onto the server (rsync, not git clone)
 
-**This is not a single git repository.** `frontend/` and `backend/` are two
-independent repos and the root is not version-controlled:
-
-| Dir | Repo |
-|---|---|
-| `frontend/` | `github.com/jessebias/portfolio-blog-frontend.git` |
-| `backend/`  | `github.com/jessebias/portfolio-blog-backend.git` |
-
-There is no single repo to clone, so deploy by **pushing your local working tree
-with `rsync` over SSH**. The frontend is built locally and only its `dist/` is
-shipped (faster, avoids OOM on the instance) — the frontend source never lands on
-the server. The whole flow is scripted in `deploy.sh` (repo root); see §13.
+The code is a single **monorepo** (`frontend/` + `backend/`), but deploys don't
+clone it on the server — you **push your local working tree with `rsync` over
+SSH**. The frontend is built locally and only its `dist/` is shipped (faster,
+avoids OOM on the instance) — the frontend source never lands on the server. The
+whole flow is scripted in `deploy.sh` (repo root); see §13.
 
 **First deploy — land the backend source:**
 
