@@ -1,8 +1,25 @@
 # Portfolio Blog
 
+**Live:** [jessebias.com](https://jessebias.com)
+
 ## Overview
 
 Jesse Bias's personal portfolio and blog, built as a full-stack bootcamp project. It combines a single-page portfolio (hero, about, works, blog preview, tools, and contact sections) with a fully functional blog system backed by a REST API, PostgreSQL database, and a JWT-authenticated admin dashboard for authoring posts. The frontend is fully bilingual (English / Japanese) with a `/ja` route prefix and an in-nav language switcher.
+
+This is a **monorepo**: the React frontend and Express backend live in one repository as independent npm projects, orchestrated for local dev with `concurrently`.
+
+## Repository Structure
+
+```
+portfolio-blog/
+├── frontend/         # React 19 + Vite SPA — TypeScript, Tailwind v4, bilingual EN/JA
+├── backend/          # Express 5 REST API + PostgreSQL (pg, no ORM), JWT auth
+├── e2e/              # Selenium WebDriver end-to-end tests
+├── docs/             # Deployment guide, specs, and TODOs
+├── tools/            # Browser-based dev utilities (live DB viewer)
+├── deploy.sh         # rsync-based production deploy (config in gitignored deploy.env)
+└── package.json      # Root orchestrator — `npm run dev` runs both via concurrently
+```
 
 ## Tech Stack
 
@@ -30,14 +47,14 @@ Jesse Bias's personal portfolio and blog, built as a full-stack bootcamp project
 
 ### Prerequisites
 
-- Node.js (v18+)
+- Node.js (v20+ recommended; v24 LTS in production)
 - PostgreSQL (running locally)
 
 ### Installation
 
 ```bash
 # 1. Clone the repository
-git clone <repo-url>
+git clone https://github.com/jessebias/portfolio-blog.git
 cd portfolio-blog
 
 # 2. Install all dependencies (frontend + backend)
@@ -291,6 +308,17 @@ npm test
 ```
 
 Requires Chrome (Selenium Manager auto-provisions a matching chromedriver) and both dev servers running on ports 3001/3000. The login-success test self-skips if `ADMIN_EMAIL` / `ADMIN_PASSWORD` are unset.
+
+## Deployment
+
+Production runs on a single AWS EC2 instance (Ubuntu, native PostgreSQL + Node, Nginx + Let's Encrypt TLS): Nginx serves the static frontend build and reverse-proxies `/api` to the Express backend, which runs under pm2. Full runbook: [docs/ec2-deployment-guide.md](docs/ec2-deployment-guide.md).
+
+Deploys push the local working tree with `rsync` (independent of git — no server-side clone):
+
+```bash
+cp deploy.env.example deploy.env   # set HOST + KEY (gitignored — never committed)
+./deploy.sh                        # builds frontend locally, syncs backend, restarts pm2
+```
 
 ## Dev Tools
 
